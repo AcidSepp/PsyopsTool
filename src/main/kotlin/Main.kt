@@ -1,5 +1,8 @@
 package org.example
 
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
 import javax.sound.midi.MidiSystem
 import javax.sound.midi.ShortMessage
 
@@ -37,9 +40,15 @@ fun main() {
     val midiLoopVisualiser1 = MidiLoopVisualiser(loop1)
     val midiLoopVisualiser2 = MidiLoopVisualiser(loop2)
 
+    Runtime.getRuntime().addShutdownHook(Thread {
+        device.receiver.send(ShortMessage(ShortMessage.STOP), -1)
+        device.receiver.send(ShortMessage(ShortMessage.SYSTEM_RESET), -1)
+        device.receiver.send(ShortMessage(0xF3, 0, 0), -1) // All notes off
+    })
+
     device.receiver.send(ShortMessage(ShortMessage.START), -1)
 
-    repeat(100000) {
+    Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate( {
         val clock = ShortMessage(ShortMessage.TIMING_CLOCK)
         device.receiver.send(clock, -1)
 
@@ -55,9 +64,7 @@ fun main() {
 
         midiLoopVisualiser1.repaint()
         midiLoopVisualiser2.repaint()
-
-        Thread.sleep(tickDuration)
-    }
+    }, 0, tickDuration, TimeUnit.MILLISECONDS)
 }
 
 private fun getTickDurationFromBpm(bpm: Float): Long {
