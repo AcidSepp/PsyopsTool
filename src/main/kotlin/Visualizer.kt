@@ -9,7 +9,7 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowListener
 import com.badlogic.gdx.graphics.Color.GREEN
 import com.badlogic.gdx.graphics.Color.RED
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.Filled
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.*
 import com.badlogic.gdx.utils.ScreenUtils
 import java.lang.Math.PI
 import javax.sound.midi.ShortMessage.NOTE_ON
@@ -17,7 +17,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.system.exitProcess
 
-class VisualiserCanvas(val midiLoop: MidiLoop) : ApplicationAdapter() {
+class VisualiserCanvas(val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
 
     private var width = 1000
     private var height = 1000
@@ -36,38 +36,47 @@ class VisualiserCanvas(val midiLoop: MidiLoop) : ApplicationAdapter() {
         val shapeRenderer = ShapeRenderer()
         shapeRenderer.translate(width / 2f, height / 2f, 0f)
 
-        shapeRenderer.begin(Filled)
-        shapeRenderer.color = GREEN
+        shapeRenderer.setAutoShapeType(true)
+        shapeRenderer.begin()
 
-        midiLoop.loop //
-            .filter { it.value.command == NOTE_ON } //x
-            .forEach { //
-                val progress: Double = it.key.toDouble() / midiLoop.amountTicks.toDouble()
-                val posX = cos(progress * 2 * PI - (PI / 2)) * (width * 0.4f)
-                val posY = sin(progress * 2 * PI - (PI / 2)) * (height * 0.4f)
+        for ((index, midiLoop) in midiLoops.withIndex()) {
+            shapeRenderer.set(Filled)
+            shapeRenderer.color = GREEN
+            midiLoop.loop //
+                .filter { it.value.command == NOTE_ON } //x
+                .forEach { //
+                    val progress: Double = it.key.toDouble() / midiLoop.amountTicks.toDouble()
+                    val posX = cos(progress * 2 * PI - (PI / 2)) * (width * getCircleRadius(index))
+                    val posY = sin(progress * 2 * PI - (PI / 2)) * (height * getCircleRadius(index))
 
-                shapeRenderer.circle(posX.toFloat(), posY.toFloat(), 20f)
-            }
+                    shapeRenderer.circle(posX.toFloat(), posY.toFloat(), 20f)
+                }
 
-        val progress: Double = midiLoop.index / midiLoop.amountTicks.toDouble()
-        val posX = cos(progress * 2 * PI - (PI / 2)) * (width * 0.4f)
-        val posY = sin(progress * 2 * PI - (PI / 2)) * (height * 0.4f)
+            val progress: Double = midiLoop.index / midiLoop.amountTicks.toDouble()
+            val posX = cos(progress * 2 * PI - (PI / 2)) * (width * getCircleRadius(index))
+            val posY = sin(progress * 2 * PI - (PI / 2)) * (height * getCircleRadius(index))
 
-        shapeRenderer.color = RED
-        shapeRenderer.circle(posX.toFloat(), posY.toFloat(), 20f)
+            shapeRenderer.color = RED
+            shapeRenderer.circle(posX.toFloat(), posY.toFloat(), 20f)
+
+            shapeRenderer.color = GREEN
+            shapeRenderer.set(Line)
+            shapeRenderer.circle(0f, 0f, getCircleRadius(index) * width)
+        }
 
         shapeRenderer.end()
         shapeRenderer.dispose()
     }
 }
 
-class MidiLoopVisualiser(midiLoop: MidiLoop) {
+fun getCircleRadius(circleIndex: Int) = 0.4f * Math.pow(0.7, circleIndex.toDouble()).toFloat()
+
+class MidiLoopVisualiser(midiLoop: List<MidiLoop>) {
 
     init {
         Thread {
             val config = Lwjgl3ApplicationConfiguration()
-            config.setForegroundFPS(60)
-            config.setTitle("My GDX Game")
+            config.setForegroundFPS(144)
             config.setResizable(true)
             config.setWindowedMode(1000, 1000)
             config.setWindowListener(object : Lwjgl3WindowListener {

@@ -12,8 +12,11 @@ private const val millisecondsPerMinute = 60_000
 
 fun main() {
 
-    val loop1 = oneBarMidiLoop(booleanArrayOf(true, true, true, true, true, true, true), 45)
-    val loop2 = oneBarMidiLoop(booleanArrayOf(true, true, true, true, true, true, true, true, true, true, true), 42)
+    val loop1 = oneBarMidiLoop(booleanArrayOf(true, true, true, true, true, true, true, true), 41)
+    val loop2 = oneBarMidiLoop(booleanArrayOf(true, false, false, false, false, true, false, false), 36)
+    val loop3 = oneBarMidiLoop(booleanArrayOf(false, false, true, false, false, false, true, false), 38)
+
+    val loops = listOf(loop1, loop2, loop3)
 
     println("ALL MIDI DEVICES")
     MidiSystem.getMidiDeviceInfo().forEach(::println)
@@ -34,10 +37,10 @@ fun main() {
     val device = midiOutDevices.first()
     device.open()
 
-    val tickDuration = getTickDurationFromBpm(100.0f)
+    val tickDuration = getTickDurationFromBpm(176.0f)
     println("Step duration $tickDuration ms")
 
-    MidiLoopVisualiser(loop1)
+    MidiLoopVisualiser(listOf(loop1, loop2, loop3))
 
     Runtime.getRuntime().addShutdownHook(Thread {
         device.receiver.send(ShortMessage(ShortMessage.STOP), -1)
@@ -47,18 +50,15 @@ fun main() {
 
     device.receiver.send(ShortMessage(ShortMessage.START), -1)
 
-    Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate( {
+    Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate({
         val clock = ShortMessage(ShortMessage.TIMING_CLOCK)
         device.receiver.send(clock, -1)
 
-        val loop1Event = loop1.tick()
-        if (loop1Event != null) {
-            device.receiver.send(loop1Event, -1)
-        }
-
-        val loop2Event = loop2.tick()
-        if (loop2Event != null) {
-            device.receiver.send(loop2Event, -1)
+        loops.forEach {
+            val event = it.tick()
+            if (event != null) {
+                device.receiver.send(event, -1)
+            }
         }
     }, 0, tickDuration, TimeUnit.MILLISECONDS)
 }
