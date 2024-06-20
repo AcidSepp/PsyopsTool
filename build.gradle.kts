@@ -12,8 +12,12 @@ repositories {
 dependencies {
     testImplementation(kotlin("test"))
 
-    implementation("com.hivemq:hivemq-mqtt-client:1.3.3")
-    implementation("com.slack.api:slack-api-client:1.38.1")
+    implementation("com.badlogicgames.gdx:gdx:1.12.1")
+
+    implementation("com.badlogicgames.gdx:gdx-backend-lwjgl3:1.12.1")
+    implementation("com.badlogicgames.gdx:gdx-platform:1.12.1:natives-desktop")
+
+
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.10.2")
     testImplementation("org.assertj:assertj-core:3.26.0")

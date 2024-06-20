@@ -37,8 +37,7 @@ fun main() {
     val tickDuration = getTickDurationFromBpm(100.0f)
     println("Step duration $tickDuration ms")
 
-    val midiLoopVisualiser1 = MidiLoopVisualiser(loop1)
-    val midiLoopVisualiser2 = MidiLoopVisualiser(loop2)
+    MidiLoopVisualiser(loop1)
 
     Runtime.getRuntime().addShutdownHook(Thread {
         device.receiver.send(ShortMessage(ShortMessage.STOP), -1)
@@ -61,9 +60,6 @@ fun main() {
         if (loop2Event != null) {
             device.receiver.send(loop2Event, -1)
         }
-
-        midiLoopVisualiser1.repaint()
-        midiLoopVisualiser2.repaint()
     }, 0, tickDuration, TimeUnit.MILLISECONDS)
 }
 
