@@ -1,6 +1,8 @@
 package org.example
 
 import javax.sound.midi.MidiSystem
+import javax.sound.midi.ShortMessage
+
 
 private const val ticksPerQuarterNote = 24
 private const val millisecondsPerMinute = 60_000
@@ -26,8 +28,8 @@ fun main() {
             println()
         }
 
-    val matriarch = midiOutDevices.first()
-    matriarch.open()
+    val device = midiOutDevices.first()
+    device.open()
 
     val tickDuration = getTickDurationFromBpm(100.0f)
     println("Step duration $tickDuration ms")
@@ -35,21 +37,26 @@ fun main() {
     val midiLoopVisualiser1 = MidiLoopVisualiser(loop1)
     val midiLoopVisualiser2 = MidiLoopVisualiser(loop2)
 
+    device.receiver.send(ShortMessage(ShortMessage.START), -1)
+
     repeat(100000) {
-        Thread.sleep(tickDuration)
+        val clock = ShortMessage(ShortMessage.TIMING_CLOCK)
+        device.receiver.send(clock, -1)
 
         val loop1Event = loop1.tick()
         if (loop1Event != null) {
-            matriarch.receiver.send(loop1Event, -1)
+            device.receiver.send(loop1Event, -1)
         }
 
         val loop2Event = loop2.tick()
         if (loop2Event != null) {
-            matriarch.receiver.send(loop2Event, -1)
+            device.receiver.send(loop2Event, -1)
         }
 
         midiLoopVisualiser1.repaint()
         midiLoopVisualiser2.repaint()
+
+        Thread.sleep(tickDuration)
     }
 }
 
