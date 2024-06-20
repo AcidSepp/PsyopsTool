@@ -13,16 +13,16 @@ class MidiLoopTest {
         repeat(4) {
             assertThat(loop.tick()).matches {
                 it!!
-                it.message[0] == NOTE_ON.toByte() &&
-                        it.message[1] == 36.toByte()
+                it.shortMessage.message[0] == NOTE_ON.toByte() &&
+                        it.shortMessage.message[1] == 36.toByte()
             }
             repeat(22) {
                 assertThat(loop.tick()).isNull()
             }
             assertThat(loop.tick()).matches {
                 it!!
-                it.message[0] == NOTE_OFF.toByte() &&
-                        it.message[1] == 36.toByte()
+                it.shortMessage.message[0] == NOTE_OFF.toByte() &&
+                        it.shortMessage.message[1] == 36.toByte()
             }
         }
     }
@@ -34,16 +34,16 @@ class MidiLoopTest {
         repeat(4) {
             assertThat(loop.tick()).matches {
                 it!!
-                it.message[0] == NOTE_ON.toByte() &&
-                        it.message[1] == 36.toByte()
+                it.shortMessage.message[0] == NOTE_ON.toByte() &&
+                        it.shortMessage.message[1] == 36.toByte()
             }
             repeat(22) {
                 assertThat(loop.tick()).isNull()
             }
             assertThat(loop.tick()).matches {
                 it!!
-                it.message[0] == NOTE_OFF.toByte() &&
-                        it.message[1] == 36.toByte()
+                it.shortMessage.message[0] == NOTE_OFF.toByte() &&
+                        it.shortMessage.message[1] == 36.toByte()
             }
             // no note should be played
             repeat(24) {
@@ -59,16 +59,16 @@ class MidiLoopTest {
         repeat(4) {
             assertThat(loop.tick()).matches {
                 it!!
-                it.message[0] == NOTE_ON.toByte() &&
-                        it.message[1] == 36.toByte()
+                it.shortMessage.message[0] == NOTE_ON.toByte() &&
+                        it.shortMessage.message[1] == 36.toByte()
             }
             repeat(10) {
                 assertThat(loop.tick()).isNull()
             }
             assertThat(loop.tick()).matches {
                 it!!
-                it.message[0] == NOTE_OFF.toByte() &&
-                        it.message[1] == 36.toByte()
+                it.shortMessage.message[0] == NOTE_OFF.toByte() &&
+                        it.shortMessage.message[1] == 36.toByte()
             }
             // no note should be played
             repeat(12) {
@@ -84,31 +84,31 @@ class MidiLoopTest {
         // this note takes 13 steps
         assertThat(loop.tick()).matches {
             it!!
-            it.message[0] == NOTE_ON.toByte() &&
-                    it.message[1] == 36.toByte()
+            it.shortMessage.message[0] == NOTE_ON.toByte() &&
+                    it.shortMessage.message[1] == 36.toByte()
         }
         repeat(11) {
             assertThat(loop.tick()).isNull()
         }
         assertThat(loop.tick()).matches {
             it!!
-            it.message[0] == NOTE_OFF.toByte() &&
-                    it.message[1] == 36.toByte()
+            it.shortMessage.message[0] == NOTE_OFF.toByte() &&
+                    it.shortMessage.message[1] == 36.toByte()
         }
 
         // this note takes 14 steps
         assertThat(loop.tick()).matches {
             it!!
-            it.message[0] == NOTE_ON.toByte() &&
-                    it.message[1] == 36.toByte()
+            it.shortMessage.message[0] == NOTE_ON.toByte() &&
+                    it.shortMessage.message[1] == 36.toByte()
         }
         repeat(12) {
             assertThat(loop.tick()).isNull()
         }
         assertThat(loop.tick()).matches {
             it!!
-            it.message[0] == NOTE_OFF.toByte() &&
-                    it.message[1] == 36.toByte()
+            it.shortMessage.message[0] == NOTE_OFF.toByte() &&
+                    it.shortMessage.message[1] == 36.toByte()
         }
     }
 }

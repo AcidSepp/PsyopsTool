@@ -5,6 +5,7 @@ import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import javax.sound.midi.MidiSystem
 import javax.sound.midi.ShortMessage
+import javax.sound.midi.ShortMessage.NOTE_OFF
 
 
 private const val ticksPerQuarterNote = 24
@@ -12,9 +13,9 @@ private const val millisecondsPerMinute = 60_000
 
 fun main() {
 
-    val loop1 = oneBarMidiLoop(booleanArrayOf(true, true, true, true, true, true, true, true), 41)
-    val loop2 = oneBarMidiLoop(booleanArrayOf(true, false, false, false, false, true, false, false), 36)
-    val loop3 = oneBarMidiLoop(booleanArrayOf(false, false, true, false, false, false, true, false), 38)
+    val loop1 = oneBarMidiLoopWithChances(floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f), 41)
+    val loop2 = oneBarMidiLoopWithChances(floatArrayOf(1.0f, 0.25f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.25f), 36)
+    val loop3 = oneBarMidiLoopWithChances(floatArrayOf(0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.25f), 38)
 
     val loops = listOf(loop1, loop2, loop3)
 
@@ -57,7 +58,9 @@ fun main() {
         loops.forEach {
             val event = it.tick()
             if (event != null) {
-                device.receiver.send(event, -1)
+                if (event.isPlaying()) {
+                    device.receiver.send(event.shortMessage, -1)
+                }
             }
         }
     }, 0, tickDuration, TimeUnit.MILLISECONDS)
