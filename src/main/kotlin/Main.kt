@@ -1,12 +1,9 @@
 package org.example
 
 import java.util.concurrent.Executors
-import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import javax.sound.midi.MidiSystem
 import javax.sound.midi.ShortMessage
-import javax.sound.midi.ShortMessage.NOTE_OFF
-
 
 private const val ticksPerQuarterNote = 24
 private const val millisecondsPerMinute = 60_000
@@ -16,7 +13,6 @@ fun main() {
     val loop1 = oneBarMidiLoopWithChances(floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f), 41)
     val loop2 = oneBarMidiLoopWithChances(floatArrayOf(1.0f, 0.25f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.25f), 36)
     val loop3 = oneBarMidiLoopWithChances(floatArrayOf(0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.25f), 38)
-
     val loops = listOf(loop1, loop2, loop3)
 
     println("ALL MIDI DEVICES")
@@ -41,8 +37,6 @@ fun main() {
     val tickDuration = getTickDurationFromBpm(176.0f)
     println("Step duration $tickDuration ms")
 
-    MidiLoopVisualiser(listOf(loop1, loop2, loop3))
-
     Runtime.getRuntime().addShutdownHook(Thread {
         device.receiver.send(ShortMessage(ShortMessage.STOP), -1)
         device.receiver.send(ShortMessage(ShortMessage.SYSTEM_RESET), -1)
@@ -64,6 +58,8 @@ fun main() {
             }
         }
     }, 0, tickDuration, TimeUnit.MILLISECONDS)
+
+    MidiLoopVisualiser(listOf(loop1, loop2, loop3))
 }
 
 private fun getTickDurationFromBpm(bpm: Float): Long {
