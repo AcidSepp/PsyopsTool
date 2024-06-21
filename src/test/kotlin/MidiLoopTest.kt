@@ -1,5 +1,5 @@
 import org.assertj.core.api.Assertions.assertThat
-import org.example.oneBarMidiLoop
+import org.example.fillOneBarMidiLoop
 import org.junit.jupiter.api.Test
 import javax.sound.midi.ShortMessage.NOTE_OFF
 import javax.sound.midi.ShortMessage.NOTE_ON
@@ -8,7 +8,7 @@ class MidiLoopTest {
 
     @Test
     fun testQuarterNotes() {
-        val loop = oneBarMidiLoop(booleanArrayOf(true, true, true, true), 36)
+        val loop = fillOneBarMidiLoop(booleanArrayOf(true, true, true, true), 36)
 
         repeat(4) {
             assertThat(loop.tick()).matches {
@@ -29,7 +29,7 @@ class MidiLoopTest {
 
     @Test
     fun testQuarterNotes2() {
-        val loop = oneBarMidiLoop(booleanArrayOf(true, false, true, false), 36)
+        val loop = fillOneBarMidiLoop(booleanArrayOf(true, false, true, false), 36)
 
         repeat(4) {
             assertThat(loop.tick()).matches {
@@ -54,7 +54,7 @@ class MidiLoopTest {
 
     @Test
     fun test8thNotes() {
-        val loop = oneBarMidiLoop(booleanArrayOf(true, false, true, false, true, false, true, false), 36)
+        val loop = fillOneBarMidiLoop(booleanArrayOf(true, false, true, false, true, false, true, false), 36)
 
         repeat(4) {
             assertThat(loop.tick()).matches {
@@ -79,7 +79,7 @@ class MidiLoopTest {
 
     @Test
     fun test7thNotes() {
-        val loop = oneBarMidiLoop(booleanArrayOf(true, true, true, true, true, true, true), 36)
+        val loop = fillOneBarMidiLoop(booleanArrayOf(true, true, true, true, true, true, true), 36)
 
         // this note takes 13 steps
         assertThat(loop.tick()).matches {

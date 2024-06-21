@@ -3,6 +3,8 @@ package org.example
 import javax.sound.midi.ShortMessage
 import kotlin.random.Random
 
+const val TICKS_PER_BAR = 96
+
 class MidiLoop(
     var amountTicks: Int = 96, val loop: Map<Int, Event> = mapOf()
 ) {
@@ -15,33 +17,19 @@ class MidiLoop(
     }
 }
 
-fun fillOneBarMidiLoop(subdivisions: Int, note: Int, ticksPerBar: Int = 96): MidiLoop {
-    val array = BooleanArray(subdivisions)
-    array.fill(true)
-    return oneBarMidiLoop(array, ticksPerBar, note)
+fun fillOneBarMidiLoop(subdivisions: Int, note: Int): MidiLoop {
+    val array = FloatArray(subdivisions)
+    array.fill(1.0f)
+    return fillOneBarMidiLoopWithChances(array, note)
 }
 
-fun oneBarMidiLoop(events: BooleanArray, note: Int, ticksPerBar: Int = 96): MidiLoop {
-    val ticksPerNoteFloat = ticksPerBar.toFloat() / events.size
-
-    val loop = mutableMapOf<Int, Event>()
-
-    for ((index, event) in events.withIndex()) {
-        if (event) {
-            val noteStartIndex = (ticksPerNoteFloat * index).toInt()
-            val nextNoteIndex = (ticksPerNoteFloat * (index + 1)).toInt()
-            val noteStopIndex = nextNoteIndex - 1
-
-            loop[noteStartIndex] = Event(ShortMessage(ShortMessage.NOTE_ON, 0, note, 96), 1.0f)
-            loop[noteStopIndex] = Event(ShortMessage(ShortMessage.NOTE_OFF, 0, note, 96), 1.0f)
-        }
-    }
-
-    return MidiLoop(ticksPerBar, loop.toMap())
+fun fillOneBarMidiLoop(events: BooleanArray, note: Int): MidiLoop {
+    val chances = events.map { if (it) 1.0f else 0.0f }.toFloatArray()
+    return fillOneBarMidiLoopWithChances(chances, note)
 }
 
-fun oneBarMidiLoopWithChances(chances: FloatArray, note: Int, ticksPerBar: Int = 96): MidiLoop {
-    val ticksPerNoteFloat = ticksPerBar.toFloat() / chances.size
+fun fillOneBarMidiLoopWithChances(chances: FloatArray, note: Int): MidiLoop {
+    val ticksPerNoteFloat = TICKS_PER_BAR.toFloat() / chances.size
 
     val loop = mutableMapOf<Int, Event>()
 
@@ -56,7 +44,7 @@ fun oneBarMidiLoopWithChances(chances: FloatArray, note: Int, ticksPerBar: Int =
         }
     }
 
-    return MidiLoop(ticksPerBar, loop.toMap())
+    return MidiLoop(TICKS_PER_BAR, loop.toMap())
 }
 
 class Event(val shortMessage: ShortMessage, val chance: Float) {
