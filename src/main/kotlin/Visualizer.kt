@@ -43,7 +43,7 @@ class VisualiserCanvas(val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
             shapeRenderer.set(Filled)
 
             midiLoop.loop //
-                .filter { it.value.shortMessage.command == NOTE_ON } //x
+                .filter { it.value.command == NOTE_ON } //x
                 .forEach { //
                     val progress: Double = it.key.toDouble() / midiLoop.amountTicks.toDouble()
                     val posX = cos(-progress * 2 * PI + (PI / 2)) * (width * getCircleRadius(index))

@@ -1,10 +1,12 @@
 package org.example
 
+import kotlinx.serialization.Serializable
 import javax.sound.midi.ShortMessage
 import kotlin.random.Random
 
 const val TICKS_PER_BAR = 96
 
+@Serializable
 class MidiLoop(
     var amountTicks: Int = 96, val loop: Map<Int, Event> = mapOf()
 ) {
@@ -17,8 +19,16 @@ class MidiLoop(
     }
 }
 
-class Event(val shortMessage: ShortMessage, val chance: Float) {
+@Serializable
+class Event(
+    val command: Int,
+    private val channel: Int,
+    private val note: Int,
+    private val velocity: Int,
+    val chance: Float
+) {
     fun isPlaying() = chance > Random.nextFloat()
+    fun asShortMessage() = ShortMessage(command, channel, note, velocity)
 }
 
 /**
@@ -63,8 +73,8 @@ fun fillSteps(chances: FloatArray, subdivisions: Int, note: Int): MidiLoop {
             val nextNoteIndex = (ticksPerNoteFloat * (index + 1)).toInt()
             val noteStopIndex = nextNoteIndex - 1
 
-            loop[noteStartIndex] = Event(ShortMessage(ShortMessage.NOTE_ON, 0, note, 96), chance)
-            loop[noteStopIndex] = Event(ShortMessage(ShortMessage.NOTE_OFF, 0, note, 96), 1.0f)
+            loop[noteStartIndex] = Event(ShortMessage.NOTE_ON, 0, note, 96, chance)
+            loop[noteStopIndex] = Event(ShortMessage.NOTE_OFF, 0, note, 96, 1.0f)
         }
     }
     return MidiLoop(amountTicks, loop.toMap())
