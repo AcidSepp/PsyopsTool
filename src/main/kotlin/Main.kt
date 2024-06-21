@@ -10,10 +10,10 @@ private const val millisecondsPerMinute = 60_000
 
 fun main() {
 
-    val loop1 = fillOneBarMidiLoop(8, 41)
-    val loop2 = fillOneBarMidiLoopWithChances(floatArrayOf(1.0f, 0.25f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.25f), 36)
-    val loop3 = fillOneBarMidiLoopWithChances(floatArrayOf(0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.25f), 38)
-    val loops = listOf(loop1, loop2, loop3)
+    val loops = listOf(
+        fillSteps(floatArrayOf(1f, 0f, 0f), 4, 37),
+        fillSteps(floatArrayOf(1f, 0f, 0f, 0f), 1, 40)
+    )
 
     println("ALL MIDI DEVICES")
     MidiSystem.getMidiDeviceInfo().forEach(::println)
@@ -24,7 +24,7 @@ fun main() {
         }.filter {
             it.maxReceivers != 0
         }.filter {
-            it.deviceInfo.name.contains("DrumBrute")
+            it.deviceInfo.name.contains("Gervill")
         }.onEach {
             println("Name: ${it.deviceInfo.name} Desc: ${it.deviceInfo.description}")
             println("MaxReceivers: ${it.maxReceivers} MaxTransmitters: ${it.maxTransmitters}")
@@ -59,7 +59,7 @@ fun main() {
         }
     }, 0, tickDuration, TimeUnit.MILLISECONDS)
 
-    MidiLoopVisualiser(listOf(loop1, loop2, loop3))
+    MidiLoopVisualiser(loops)
 }
 
 private fun getTickDurationFromBpm(bpm: Float): Long {

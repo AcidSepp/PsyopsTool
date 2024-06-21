@@ -17,22 +17,46 @@ class MidiLoop(
     }
 }
 
-fun fillOneBarMidiLoop(subdivisions: Int, note: Int): MidiLoop {
-    val array = FloatArray(subdivisions)
+class Event(val shortMessage: ShortMessage, val chance: Float) {
+    fun isPlaying() = chance > Random.nextFloat()
+}
+
+/**
+ * Fills one bar with the amount of notes given.
+ * @param noteCount the count of notes in this bar. Can be an odd number.
+ */
+fun fillOneBarMidiLoop(noteCount: Int, note: Int): MidiLoop {
+    check(noteCount > 0)
+    val array = FloatArray(noteCount)
     array.fill(1.0f)
     return fillOneBarMidiLoopWithChances(array, note)
 }
 
+/**
+ * Fills one with either pauses or the note, depending on the array.
+ * The size of the array determines the subdivision of the notes.
+ */
 fun fillOneBarMidiLoop(events: BooleanArray, note: Int): MidiLoop {
     val chances = events.map { if (it) 1.0f else 0.0f }.toFloatArray()
     return fillOneBarMidiLoopWithChances(chances, note)
 }
 
+/**
+ * Fills one bar with notes with the given chances.
+ * The size of the array determines the subdivision of the notes.
+ */
 fun fillOneBarMidiLoopWithChances(chances: FloatArray, note: Int): MidiLoop {
-    val ticksPerNoteFloat = TICKS_PER_BAR.toFloat() / chances.size
+    return fillSteps(chances, chances.size, note)
+}
 
+/**
+ * Creates a Midi Loop with notes with the given chances.
+ * This can be longer or shorter than a bar.
+ */
+fun fillSteps(chances: FloatArray, subdivisions: Int, note: Int): MidiLoop {
+    val ticksPerNoteFloat = TICKS_PER_BAR.toFloat() / subdivisions
+    val amountTicks = (chances.size * ticksPerNoteFloat).toInt()
     val loop = mutableMapOf<Int, Event>()
-
     for ((index, chance) in chances.withIndex()) {
         if (chance != 0.0f) {
             val noteStartIndex = (ticksPerNoteFloat * index).toInt()
@@ -43,12 +67,5 @@ fun fillOneBarMidiLoopWithChances(chances: FloatArray, note: Int): MidiLoop {
             loop[noteStopIndex] = Event(ShortMessage(ShortMessage.NOTE_OFF, 0, note, 96), 1.0f)
         }
     }
-
-    return MidiLoop(TICKS_PER_BAR, loop.toMap())
-}
-
-class Event(val shortMessage: ShortMessage, val chance: Float) {
-
-    fun isPlaying() = chance > Random.nextFloat()
-
+    return MidiLoop(amountTicks, loop.toMap())
 }
