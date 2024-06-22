@@ -22,9 +22,9 @@ class MidiLoop(
 @Serializable
 class Event(
     val command: Int,
-    private val channel: Int,
-    private val note: Int,
-    private val velocity: Int,
+    val channel: Int,
+    val note: Int,
+    val velocity: Int,
     val chance: Float
 ) {
     fun isPlaying() = chance > Random.nextFloat()
@@ -40,15 +40,6 @@ fun fillOneBarMidiLoop(noteCount: Int, note: Int): MidiLoop {
     val array = FloatArray(noteCount)
     array.fill(1.0f)
     return fillOneBarMidiLoopWithChances(array, note)
-}
-
-/**
- * Fills one with either pauses or the note, depending on the array.
- * The size of the array determines the subdivision of the notes.
- */
-fun fillOneBarMidiLoop(events: BooleanArray, note: Int): MidiLoop {
-    val chances = events.map { if (it) 1.0f else 0.0f }.toFloatArray()
-    return fillOneBarMidiLoopWithChances(chances, note)
 }
 
 /**

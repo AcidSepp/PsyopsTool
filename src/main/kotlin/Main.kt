@@ -2,8 +2,6 @@ package org.example
 
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import java.nio.file.Files
-import java.nio.file.Path
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import javax.sound.midi.MidiSystem
@@ -12,25 +10,18 @@ import javax.sound.midi.ShortMessage
 private const val ticksPerQuarterNote = 24
 private const val millisecondsPerMinute = 60_000
 
-fun main(args: Array<String>) {
+fun main() {
 
-    val presetPath = Path.of("/Users/yannick/IdeaProjects/PsyopsTool/src/main/resources/dnb.json")
+    val loops = listOf(
+        fillOneBarMidiLoop(8, 41),
+        fillOneBarMidiLoopWithChances(floatArrayOf(1.0f, 0.25f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.25f), 36),
+        fillOneBarMidiLoopWithChances(floatArrayOf(0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.25f), 38),
+    )
     val json = Json {
         ignoreUnknownKeys = true
         prettyPrint = true
     }
-    val loops = json.decodeFromString<List<MidiLoop>>(Files.readString(presetPath))
-
-//    val loops = listOf(
-//        fillOneBarMidiLoop(8, 41),
-//        fillOneBarMidiLoopWithChances(floatArrayOf(1.0f, 0.25f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.25f), 36),
-//        fillOneBarMidiLoopWithChances(floatArrayOf(0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.25f), 38),
-//    )
-//    val json = Json {
-//        ignoreUnknownKeys = true
-//        prettyPrint = true
-//    }
-//    println(json.encodeToString(loops))
+    println(json.encodeToString(loops))
 
     println("ALL MIDI DEVICES")
     MidiSystem.getMidiDeviceInfo().forEach(::println)

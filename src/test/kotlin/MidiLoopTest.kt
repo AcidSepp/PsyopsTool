@@ -1,5 +1,6 @@
 import org.assertj.core.api.Assertions.assertThat
 import org.example.fillOneBarMidiLoop
+import org.example.fillOneBarMidiLoopWithChances
 import org.example.fillSteps
 import org.junit.jupiter.api.Test
 import javax.sound.midi.ShortMessage.NOTE_OFF
@@ -14,58 +15,58 @@ class MidiLoopTest {
         repeat(4) {
             assertThat(loop.tick()).matches {
                 it!!
-                it.shortMessage.message[0] == NOTE_ON.toByte() &&
-                        it.shortMessage.message[1] == 36.toByte()
+                it.command == NOTE_ON &&
+                        it.note == 36
             }
             repeat(46) {
                 assertThat(loop.tick()).isNull()
             }
             assertThat(loop.tick()).matches {
                 it!!
-                it.shortMessage.message[0] == NOTE_OFF.toByte() &&
-                        it.shortMessage.message[1] == 36.toByte()
+                it.command == NOTE_OFF &&
+                        it.note == 36
             }
         }
     }
 
     @Test
-    fun fillOneBarMidiLoop_quarterNotes() {
-        val loop = fillOneBarMidiLoop(booleanArrayOf(true, true, true, true), 36)
+    fun fillOneBarMidiLoopWithChances_quarterNotes() {
+        val loop = fillOneBarMidiLoopWithChances(floatArrayOf(1f, 1f, 1f, 1f), 36)
 
         repeat(4) {
             assertThat(loop.tick()).matches {
                 it!!
-                it.shortMessage.message[0] == NOTE_ON.toByte() &&
-                        it.shortMessage.message[1] == 36.toByte()
+                it.command == NOTE_ON &&
+                        it.note == 36
             }
             repeat(22) {
                 assertThat(loop.tick()).isNull()
             }
             assertThat(loop.tick()).matches {
                 it!!
-                it.shortMessage.message[0] == NOTE_OFF.toByte() &&
-                        it.shortMessage.message[1] == 36.toByte()
+                it.command == NOTE_OFF &&
+                        it.note == 36
             }
         }
     }
 
     @Test
-    fun fillOneBarMidiLoop_quarterNotes2() {
-        val loop = fillOneBarMidiLoop(booleanArrayOf(true, false, true, false), 36)
+    fun fillOneBarMidiLoopWithChances_quarterNotes2() {
+        val loop = fillOneBarMidiLoopWithChances(floatArrayOf(1f, 0f, 1f, 0f), 36)
 
         repeat(4) {
             assertThat(loop.tick()).matches {
                 it!!
-                it.shortMessage.message[0] == NOTE_ON.toByte() &&
-                        it.shortMessage.message[1] == 36.toByte()
+                it.command == NOTE_ON &&
+                        it.note == 36
             }
             repeat(22) {
                 assertThat(loop.tick()).isNull()
             }
             assertThat(loop.tick()).matches {
                 it!!
-                it.shortMessage.message[0] == NOTE_OFF.toByte() &&
-                        it.shortMessage.message[1] == 36.toByte()
+                it.command == NOTE_OFF &&
+                        it.note == 36
             }
             // no note should be played
             repeat(24) {
@@ -75,22 +76,22 @@ class MidiLoopTest {
     }
 
     @Test
-    fun fillOneBarMidiLoop_8thNotes() {
-        val loop = fillOneBarMidiLoop(booleanArrayOf(true, false, true, false, true, false, true, false), 36)
+    fun fillOneBarMidiLoopWithChances_8thNotes() {
+        val loop = fillOneBarMidiLoopWithChances(floatArrayOf(1f, 0f, 1f, 0f, 1f, 0f, 1f, 0f), 36)
 
         repeat(4) {
             assertThat(loop.tick()).matches {
                 it!!
-                it.shortMessage.message[0] == NOTE_ON.toByte() &&
-                        it.shortMessage.message[1] == 36.toByte()
+                it.command == NOTE_ON &&
+                        it.note == 36
             }
             repeat(10) {
                 assertThat(loop.tick()).isNull()
             }
             assertThat(loop.tick()).matches {
                 it!!
-                it.shortMessage.message[0] == NOTE_OFF.toByte() &&
-                        it.shortMessage.message[1] == 36.toByte()
+                it.command == NOTE_OFF &&
+                        it.note == 36
             }
             // no note should be played
             repeat(12) {
@@ -100,37 +101,37 @@ class MidiLoopTest {
     }
 
     @Test
-    fun fillOneBarMidiLoop_7thNotes() {
-        val loop = fillOneBarMidiLoop(booleanArrayOf(true, true, true, true, true, true, true), 36)
+    fun fillOneBarMidiLoopWithChances_7thNotes() {
+        val loop = fillOneBarMidiLoopWithChances(floatArrayOf(1f, 1f, 1f, 1f, 1f, 1f, 1f), 36)
 
         // this note takes 13 steps
         assertThat(loop.tick()).matches {
             it!!
-            it.shortMessage.message[0] == NOTE_ON.toByte() &&
-                    it.shortMessage.message[1] == 36.toByte()
+            it.command == NOTE_ON &&
+                    it.note == 36
         }
         repeat(11) {
             assertThat(loop.tick()).isNull()
         }
         assertThat(loop.tick()).matches {
             it!!
-            it.shortMessage.message[0] == NOTE_OFF.toByte() &&
-                    it.shortMessage.message[1] == 36.toByte()
+            it.command == NOTE_OFF &&
+                    it.note == 36
         }
 
         // this note takes 14 steps
         assertThat(loop.tick()).matches {
             it!!
-            it.shortMessage.message[0] == NOTE_ON.toByte() &&
-                    it.shortMessage.message[1] == 36.toByte()
+            it.command == NOTE_ON &&
+                    it.note == 36
         }
         repeat(12) {
             assertThat(loop.tick()).isNull()
         }
         assertThat(loop.tick()).matches {
             it!!
-            it.shortMessage.message[0] == NOTE_OFF.toByte() &&
-                    it.shortMessage.message[1] == 36.toByte()
+            it.command == NOTE_OFF &&
+                    it.note == 36
         }
     }
 
@@ -144,16 +145,16 @@ class MidiLoopTest {
             // first note is on
             assertThat(loop.tick()).matches {
                 it!!
-                it.shortMessage.message[0] == NOTE_ON.toByte() &&
-                        it.shortMessage.message[1] == 36.toByte()
+                it.command == NOTE_ON &&
+                        it.note == 36
             }
             repeat(22) {
                 assertThat(loop.tick()).isNull()
             }
             assertThat(loop.tick()).matches {
                 it!!
-                it.shortMessage.message[0] == NOTE_OFF.toByte() &&
-                        it.shortMessage.message[1] == 36.toByte()
+                it.command == NOTE_OFF &&
+                        it.note == 36
             }
             // wait for 2 quarter notes
             repeat(48) {
@@ -172,16 +173,16 @@ class MidiLoopTest {
             // first note is on
             assertThat(loop.tick()).matches {
                 it!!
-                it.shortMessage.message[0] == NOTE_ON.toByte() &&
-                        it.shortMessage.message[1] == 36.toByte()
+                it.command == NOTE_ON &&
+                        it.note == 36
             }
             repeat(22) {
                 assertThat(loop.tick()).isNull()
             }
             assertThat(loop.tick()).matches {
                 it!!
-                it.shortMessage.message[0] == NOTE_OFF.toByte() &&
-                        it.shortMessage.message[1] == 36.toByte()
+                it.command == NOTE_OFF &&
+                        it.note == 36
             }
             // wait for 4 quarter notes
             repeat(96) {
