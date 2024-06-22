@@ -5,6 +5,21 @@ import javax.sound.midi.ShortMessage
 import kotlin.random.Random
 
 const val TICKS_PER_BAR = 96
+val NOTE_NAMES = arrayOf(
+    "C",
+    "C#",
+    "D",
+    "D#",
+    "E",
+    "F",
+    "F#",
+    "G",
+    "G#",
+    "A",
+    "A#",
+    "B"
+)
+
 
 @Serializable
 class MidiLoop(
@@ -29,6 +44,7 @@ class Event(
 ) {
     fun isPlaying() = chance > Random.nextFloat()
     fun asShortMessage() = ShortMessage(command, channel, note, velocity)
+    val noteName = NOTE_NAMES[note % NOTE_NAMES.size]
 }
 
 /**
