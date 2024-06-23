@@ -5,8 +5,11 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowListener
+import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.graphics.Color.GREEN
 import com.badlogic.gdx.graphics.Color.RED
+import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.Filled
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.Line
@@ -35,7 +38,6 @@ class VisualiserCanvas(val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
 
         val shapeRenderer = ShapeRenderer()
         shapeRenderer.translate(width / 2f, height / 2f, 0f)
-
         shapeRenderer.setAutoShapeType(true)
         shapeRenderer.begin()
 
@@ -50,7 +52,15 @@ class VisualiserCanvas(val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
                     val posY = sin(-progress * 2 * PI + (PI / 2)) * (height * getCircleRadius(index))
 
                     shapeRenderer.color = GREEN.cpy().mul(it.value.chance, it.value.chance, it.value.chance, 1f)
-                    shapeRenderer.circle(posX.toFloat(), posY.toFloat(), 20f)
+
+                    val spriteBatch = SpriteBatch()
+                    spriteBatch.begin()
+                    val texture =
+                        Texture(FileHandle("/Users/yannick/IdeaProjects/PsyopsTool/src/main/resources/${it.value.noteName}.png"))
+                    spriteBatch.drawMidHandled(texture, posX.toFloat() + width / 2, posY.toFloat() + height / 2f, 40f, 40f)
+                    spriteBatch.end()
+                    spriteBatch.dispose()
+                    texture.dispose()
                 }
 
             val progress: Double = midiLoop.index / midiLoop.amountTicks.toDouble()
@@ -76,6 +86,9 @@ class VisualiserCanvas(val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
 }
 
 fun getCircleRadius(circleIndex: Int) = 0.4f * Math.pow(0.7, circleIndex.toDouble()).toFloat()
+
+fun SpriteBatch.drawMidHandled(texture: Texture, posX: Float, posY: Float, width: Float, height: Float) =
+    draw(texture, posX - width / 2, posY - height / 2, width, height)
 
 class MidiLoopVisualiser(midiLoop: List<MidiLoop>) {
 
