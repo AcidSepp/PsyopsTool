@@ -9,6 +9,7 @@ import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.graphics.Color.GREEN
 import com.badlogic.gdx.graphics.Color.RED
 import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.Filled
@@ -55,9 +56,16 @@ class VisualiserCanvas(val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
 
                     val spriteBatch = SpriteBatch()
                     spriteBatch.begin()
+
                     val texture =
                         Texture(FileHandle("/Users/yannick/IdeaProjects/PsyopsTool/src/main/resources/${it.value.noteName}.png"))
-                    spriteBatch.drawMidHandled(texture, posX.toFloat() + width / 2, posY.toFloat() + height / 2f, 40f, 40f)
+
+                    val sprite = Sprite(texture)
+                    sprite.setSize(40f, 40f)
+                    sprite.setPositionMidHandled(posX.toFloat() + width / 2, posY.toFloat() + height / 2f)
+                    sprite.setAlpha(it.value.chance)
+                    sprite.draw(spriteBatch)
+
                     spriteBatch.end()
                     spriteBatch.dispose()
                     texture.dispose()
@@ -87,8 +95,8 @@ class VisualiserCanvas(val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
 
 fun getCircleRadius(circleIndex: Int) = 0.4f * Math.pow(0.7, circleIndex.toDouble()).toFloat()
 
-fun SpriteBatch.drawMidHandled(texture: Texture, posX: Float, posY: Float, width: Float, height: Float) =
-    draw(texture, posX - width / 2, posY - height / 2, width, height)
+fun Sprite.setPositionMidHandled(posX: Float, posY: Float) =
+    setPosition(posX - width / 2, posY - height / 2)
 
 class MidiLoopVisualiser(midiLoop: List<MidiLoop>) {
 
