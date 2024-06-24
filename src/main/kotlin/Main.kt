@@ -67,16 +67,20 @@ class PsyopsTool : CliktCommand() {
         device.receiver.send(ShortMessage(ShortMessage.START), -1)
 
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate({
-            val clock = ShortMessage(ShortMessage.TIMING_CLOCK)
-            device.receiver.send(clock, -1)
+            try {
+                val clock = ShortMessage(ShortMessage.TIMING_CLOCK)
+                device.receiver.send(clock, -1)
 
-            loops.forEach {
-                val event = it.tick()
-                if (event != null) {
-                    if (event.isPlaying()) {
+                loops.forEach {
+                    val event = it.tick()
+                    if (event != null) {
+                        if (event.isPlaying()) {
 //                        device.receiver.send(event.asShortMessage(), -1)
+                        }
                     }
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }, 0, tickDuration, TimeUnit.MILLISECONDS)
 

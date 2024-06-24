@@ -12,7 +12,7 @@ class MidiLoopTest {
     fun fillOneBarMidiLoop_halfNotes() {
         val loop = fillOneBarMidiLoop(2, 36)
 
-        repeat(4) {
+        repeat(2) {
             assertThat(loop.tick()).matches {
                 it!!
                 it.command == NOTE_ON &&
@@ -20,6 +20,21 @@ class MidiLoopTest {
             }
             repeat(46) {
                 assertThat(loop.tick()).isNull()
+                assertThat(loop.noteIndex == 0)
+            }
+            assertThat(loop.tick()).matches {
+                it!!
+                it.command == NOTE_OFF &&
+                        it.note == 36
+            }
+            assertThat(loop.tick()).matches {
+                it!!
+                it.command == NOTE_ON &&
+                        it.note == 36
+            }
+            repeat(46) {
+                assertThat(loop.tick()).isNull()
+                assertThat(loop.noteIndex == 1)
             }
             assertThat(loop.tick()).matches {
                 it!!
@@ -190,4 +205,33 @@ class MidiLoopTest {
             }
         }
     }
+
+    @Test
+    fun fillSteps_4quarterNotes_halfLength() {
+        val loop = fillSteps(floatArrayOf(1f, 0f, 0f, 0f), 4, 36, 0.5f)
+
+        assertThat(loop.amountTicks).isEqualTo(96)
+
+        repeat(2) {
+            // first note is on
+            assertThat(loop.tick()).matches {
+                it!!
+                it.command == NOTE_ON &&
+                        it.note == 36
+            }
+            repeat(10) {
+                assertThat(loop.tick()).isNull()
+            }
+            assertThat(loop.tick()).matches {
+                it!!
+                it.command == NOTE_OFF &&
+                        it.note == 36
+            }
+            // wait for 4 quarter notes
+            repeat(84) {
+                assertThat(loop.tick()).isNull()
+            }
+        }
+    }
+
 }
