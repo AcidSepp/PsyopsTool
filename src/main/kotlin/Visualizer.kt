@@ -23,22 +23,18 @@ import kotlin.system.exitProcess
 
 class VisualiserCanvas(val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
 
-    private var width = 1000
-    private var height = 1000
-
-    override fun create() {
-    }
+    private var width = 1000f
+    private var height = 1000f
 
     override fun resize(width: Int, height: Int) {
-        this.width = width
-        this.height = height
+        this.width = width.toFloat()
+        this.height = height.toFloat()
     }
 
     override fun render() {
         ScreenUtils.clear(0f, 0f, 0f, 1f)
 
         val shapeRenderer = ShapeRenderer()
-        shapeRenderer.translate(width / 2f, height / 2f, 0f)
         shapeRenderer.setAutoShapeType(true)
         shapeRenderer.begin()
 
@@ -51,8 +47,6 @@ class VisualiserCanvas(val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
                     val progress: Double = it.key.toDouble() / midiLoop.amountTicks.toDouble()
                     val posX = cos(-progress * 2 * PI + (PI / 2)) * (width * getCircleRadius(index))
                     val posY = sin(-progress * 2 * PI + (PI / 2)) * (height * getCircleRadius(index))
-
-                    shapeRenderer.color = GREEN.cpy().mul(it.value.chance, it.value.chance, it.value.chance, 1f)
 
                     val spriteBatch = SpriteBatch()
                     spriteBatch.begin()
@@ -71,18 +65,19 @@ class VisualiserCanvas(val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
                     texture.dispose()
                 }
 
+            // draw position indicator
             val progress: Double = midiLoop.index / midiLoop.amountTicks.toDouble()
             val posX = cos(-progress * 2 * PI + (PI / 2)) * (width * getCircleRadius(index))
             val posY = sin(-progress * 2 * PI + (PI / 2)) * (height * getCircleRadius(index))
-
             shapeRenderer.color = RED
-            shapeRenderer.circle(posX.toFloat(), posY.toFloat(), 20f)
+            shapeRenderer.circle(posX.toFloat() + width / 2, posY.toFloat() + height / 2, 20f)
 
+            // draw helper circles
             shapeRenderer.color = GREEN
             shapeRenderer.set(Line)
             shapeRenderer.ellipse(
-                -getCircleRadius(index) * width.toFloat(),
-                -getCircleRadius(index) * height.toFloat(),
+                -getCircleRadius(index) * width + width / 2,
+                -getCircleRadius(index) * height + height / 2,
                 getCircleRadius(index) * width * 2f,
                 getCircleRadius(index) * height * 2f
             )

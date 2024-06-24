@@ -8,13 +8,13 @@ import com.github.ajalt.clikt.parameters.types.boolean
 import com.github.ajalt.clikt.parameters.types.float
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import java.time.Duration
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import javax.sound.midi.MidiSystem
 import javax.sound.midi.ShortMessage
 
 private const val ticksPerQuarterNote = 24
-private const val millisecondsPerMinute = 60_000
 
 fun main(args: Array<String>) = PsyopsTool().main(args)
 
@@ -74,7 +74,7 @@ class PsyopsTool : CliktCommand() {
                 val event = it.tick()
                 if (event != null) {
                     if (event.isPlaying()) {
-                        device.receiver.send(event.asShortMessage(), -1)
+//                        device.receiver.send(event.asShortMessage(), -1)
                     }
                 }
             }
@@ -84,9 +84,8 @@ class PsyopsTool : CliktCommand() {
             MidiLoopVisualiser(loops)
         }
     }
-
 }
 
 private fun getTickDurationFromBpm(bpm: Float): Long {
-    return ((1f / (bpm * ticksPerQuarterNote)) * millisecondsPerMinute).toLong()
+    return ((1f / (bpm * ticksPerQuarterNote)) * Duration.ofMinutes(1).toMillis()).toLong()
 }
