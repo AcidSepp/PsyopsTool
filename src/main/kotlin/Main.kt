@@ -22,7 +22,7 @@ class PsyopsTool : CliktCommand() {
 
     private val visualization: Boolean by option().boolean().default(true).help("Show visualization")
     private val device: String by option().default("Gervill").help("Show visualization")
-    private val bpm: Float by option().float().default(176f).help("Beats per minute")
+    private val bpm: Float by option().float().default(80f).help("Beats per minute")
 
     override fun run() {
         val loops = listOf(

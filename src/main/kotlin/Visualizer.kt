@@ -16,7 +16,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.Filled
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.Line
 import com.badlogic.gdx.utils.ScreenUtils
 import java.lang.Math.PI
-import javax.sound.midi.ShortMessage.NOTE_ON
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.system.exitProcess
@@ -42,7 +41,6 @@ class VisualiserCanvas(val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
             shapeRenderer.set(Filled)
 
             midiLoop.loop //
-                .filter { it.value.command == NOTE_ON } //x
                 .forEach { //
                     val progress: Double = it.key.toDouble() / midiLoop.amountTicks.toDouble()
                     val posX = cos(-progress * 2 * PI + (PI / 2)) * (width * getCircleRadius(index))
@@ -81,10 +79,33 @@ class VisualiserCanvas(val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
                 getCircleRadius(index) * width * 2f,
                 getCircleRadius(index) * height * 2f
             )
+
+            drawCurrentNote(midiLoop, index, shapeRenderer)
         }
 
         shapeRenderer.end()
         shapeRenderer.dispose()
+    }
+
+    private fun drawCurrentNote(
+        midiLoop: MidiLoop,
+        index: Int,
+        shapeRenderer: ShapeRenderer
+    ) {
+        val currentNote = midiLoop.currentNote
+        if (currentNote != null) {
+            val currentNoteProgress: Float =
+                (midiLoop.index - currentNote.startIndex).toFloat() / currentNote.durationInTicks
+            val currentNoteRadians: Float = currentNote.startIndex.toFloat() / midiLoop.amountTicks
+            val currentNotePosX = cos(-currentNoteRadians * 2 * PI + (PI / 2)) * (width * getCircleRadius(index))
+            val currentNotePosY = sin(-currentNoteRadians * 2 * PI + (PI / 2)) * (height * getCircleRadius(index))
+            shapeRenderer.color = RED
+            shapeRenderer.circle(
+                currentNotePosX.toFloat() + width / 2,
+                currentNotePosY.toFloat() + height / 2,
+                50f * currentNoteProgress
+            )
+        }
     }
 }
 

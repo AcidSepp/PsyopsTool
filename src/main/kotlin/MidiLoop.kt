@@ -34,8 +34,12 @@ class MidiLoop(
         index = (index + 1) % amountTicks
         if (loop.containsKey(index)) {
             noteIndex = (noteIndex + 1) % loop.size
-            currentNote = loop[index]!!
-            return currentNote
+            val currentNote = loop[index]!!
+            if (currentNote.isPlaying()) {
+                this.currentNote = currentNote
+                return currentNote
+            }
+            return null
         }
         val currentNote = currentNote
         if (currentNote != null && index == currentNote.stopIndex) {
