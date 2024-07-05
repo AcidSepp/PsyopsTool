@@ -48,6 +48,12 @@ class MidiLoop(
         }
         return null
     }
+
+    fun reset() {
+        index = amountTicks -1
+        noteIndex = loop.size -1
+        currentNote = loop[0]
+    }
 }
 
 @Serializable
