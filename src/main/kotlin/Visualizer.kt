@@ -95,51 +95,10 @@ class Visualizer(private val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
         val spriteBatch = spriteBatch!!
 
         for ((index, midiLoop) in midiLoops.withIndex()) {
-            // draw helper circles
-            shapeRenderer.begin()
-            shapeRenderer.color = GREEN
-            shapeRenderer.set(Line)
-            val helperCircleRadius = getCircleRadius(index)
-            shapeRenderer.ellipseMidHandled(
-                0f,
-                0f,
-                helperCircleRadius * 2,
-                helperCircleRadius * 2,
-            )
-            shapeRenderer.end()
-
-            midiLoop.loop //
-                .forEach { //
-                    val progress = it.key.toFloat() / midiLoop.amountTicks.toFloat()
-                    val posX = cos(-progress * 2 * PI + (PI / 2)).toFloat() * getCircleRadius(index)
-                    val posY = sin(-progress * 2 * PI + (PI / 2)).toFloat() * getCircleRadius(index)
-
-                    shapeRenderer.begin()
-                    shapeRenderer.color = BLACK
-                    shapeRenderer.set(Filled)
-                    shapeRenderer.ellipseMidHandled(posX, posY, circleSize, circleSize)
-                    shapeRenderer.end()
-
-                    spriteBatch.begin()
-                    val sprite = Sprite(noteNameTextures[it.value.noteName]!!)
-                    sprite.setSize(circleSize, circleSize)
-                    sprite.setPositionMidHandled(posX, posY)
-                    sprite.setAlpha(it.value.chance)
-                    sprite.draw(spriteBatch)
-                    spriteBatch.end()
-                }
-
-            // draw position indicator
-            val progress = midiLoop.index.toFloat() / midiLoop.amountTicks.toFloat()
-            val posX = cos(-progress * 2 * PI + (PI / 2)) * getCircleRadius(index)
-            val posY = sin(-progress * 2 * PI + (PI / 2)) * getCircleRadius(index)
-            shapeRenderer.begin()
-            shapeRenderer.color = RED
-            shapeRenderer.set(Filled)
-            shapeRenderer.ellipseMidHandled(posX.toFloat(), posY.toFloat(), circleSize, circleSize)
-            shapeRenderer.end()
-
-            drawCurrentNote(midiLoop, index, shapeRenderer)
+            renderCurrentNotePlayingIndicator(midiLoop, index, shapeRenderer)
+            renderHelperCircle(shapeRenderer, index)
+            renderAllNotesInLoop(midiLoop, index, shapeRenderer, spriteBatch)
+            renderPositionIndicator(midiLoop, index, shapeRenderer)
         }
     }
 
@@ -149,12 +108,14 @@ class Visualizer(private val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
         spriteBatch?.dispose()
     }
 
-    private fun drawCurrentNote(
+    private fun renderCurrentNotePlayingIndicator(
         midiLoop: MidiLoop,
         index: Int,
         shapeRenderer: ShapeRenderer
     ) {
         shapeRenderer.begin()
+        shapeRenderer.color = RED
+        shapeRenderer.set(Line)
         val currentNote = midiLoop.currentNote
         if (currentNote != null) {
             val currentNoteProgress =
@@ -162,7 +123,6 @@ class Visualizer(private val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
             val currentNoteRadians = currentNote.startIndex.toFloat() / midiLoop.amountTicks
             val currentNotePosX = cos(-currentNoteRadians * 2 * PI + (PI / 2)) * (getCircleRadius(index))
             val currentNotePosY = sin(-currentNoteRadians * 2 * PI + (PI / 2)) * (getCircleRadius(index))
-            shapeRenderer.color = RED
             shapeRenderer.ellipseMidHandled(
                 currentNotePosX.toFloat(),
                 currentNotePosY.toFloat(),
@@ -172,12 +132,69 @@ class Visualizer(private val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
         }
         shapeRenderer.end()
     }
+
+    private fun renderHelperCircle(shapeRenderer: ShapeRenderer, index: Int) {
+        shapeRenderer.begin()
+        shapeRenderer.color = GREEN
+        shapeRenderer.set(Line)
+        val helperCircleRadius = getCircleRadius(index)
+        shapeRenderer.ellipseMidHandled(
+            0f,
+            0f,
+            helperCircleRadius * 2,
+            helperCircleRadius * 2,
+        )
+        shapeRenderer.end()
+    }
+
+    private fun renderAllNotesInLoop(
+        midiLoop: MidiLoop,
+        index: Int,
+        shapeRenderer: ShapeRenderer,
+        spriteBatch: SpriteBatch
+    ) {
+        midiLoop.loop //
+            .forEach { //
+                val progress = it.key.toFloat() / midiLoop.amountTicks.toFloat()
+                val posX = cos(-progress * 2 * PI + (PI / 2)).toFloat() * getCircleRadius(index)
+                val posY = sin(-progress * 2 * PI + (PI / 2)).toFloat() * getCircleRadius(index)
+
+                shapeRenderer.begin()
+                shapeRenderer.color = BLACK
+                shapeRenderer.set(Filled)
+                shapeRenderer.ellipseMidHandled(posX, posY, circleSize, circleSize)
+                shapeRenderer.end()
+
+                spriteBatch.begin()
+                val sprite = Sprite(noteNameTextures[it.value.noteName]!!)
+                sprite.setSize(circleSize, circleSize)
+                sprite.setPositionMidHandled(posX, posY)
+                sprite.setAlpha(it.value.chance)
+                sprite.draw(spriteBatch)
+                spriteBatch.end()
+            }
+    }
+
+    private fun renderPositionIndicator(
+        midiLoop: MidiLoop,
+        index: Int,
+        shapeRenderer: ShapeRenderer
+    ) {
+        val progress = midiLoop.index.toFloat() / midiLoop.amountTicks.toFloat()
+        val posX = cos(-progress * 2 * PI + (PI / 2)) * getCircleRadius(index)
+        val posY = sin(-progress * 2 * PI + (PI / 2)) * getCircleRadius(index)
+        shapeRenderer.begin()
+        shapeRenderer.color = RED
+        shapeRenderer.set(Filled)
+        shapeRenderer.ellipseMidHandled(posX.toFloat(), posY.toFloat(), circleSize, circleSize)
+        shapeRenderer.end()
+    }
 }
 
-fun getCircleRadius(circleIndex: Int) = 0.9f - circleIndex * 0.1f
+private fun getCircleRadius(circleIndex: Int) = 0.9f - circleIndex * 0.1f
 
-fun Sprite.setPositionMidHandled(posX: Float, posY: Float) =
+private fun Sprite.setPositionMidHandled(posX: Float, posY: Float) =
     setPosition(posX - width / 2, posY - height / 2)
 
-fun ShapeRenderer.ellipseMidHandled(posX: Float, posY: Float, width: Float, height: Float, segments: Int = 64) =
+private fun ShapeRenderer.ellipseMidHandled(posX: Float, posY: Float, width: Float, height: Float, segments: Int = 64) =
     ellipse(posX - width / 2, posY - height / 2, width, height, segments)
