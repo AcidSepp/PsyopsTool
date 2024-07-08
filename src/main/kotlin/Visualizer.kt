@@ -20,7 +20,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.system.exitProcess
 
-class VisualiserCanvas(private val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
+class Visualizer(private val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
 
     private lateinit var noteNameTextures: Map<String, Texture>
 
@@ -30,6 +30,40 @@ class VisualiserCanvas(private val midiLoops: List<MidiLoop>) : ApplicationAdapt
 
     private var shapeRenderer: ShapeRenderer? = null
     private var spriteBatch: SpriteBatch? = null
+
+    init {
+        val config = Lwjgl3ApplicationConfiguration()
+        config.setForegroundFPS(144)
+        config.setResizable(true)
+        config.setWindowedMode(1000, 1000)
+        config.setWindowListener(object : Lwjgl3WindowListener {
+            override fun created(p0: Lwjgl3Window?) {
+            }
+
+            override fun iconified(p0: Boolean) {
+            }
+
+            override fun maximized(p0: Boolean) {
+            }
+
+            override fun focusLost() {
+            }
+
+            override fun focusGained() {
+            }
+
+            override fun closeRequested(): Boolean {
+                exitProcess(0)
+            }
+
+            override fun filesDropped(p0: Array<out String>?) {
+            }
+
+            override fun refreshRequested() {
+            }
+        })
+        Lwjgl3Application(this, config)
+    }
 
     override fun create() {
         noteNameTextures = NOTE_NAMES.associateWith {
@@ -45,11 +79,11 @@ class VisualiserCanvas(private val midiLoops: List<MidiLoop>) : ApplicationAdapt
 
         shapeRenderer = ShapeRenderer().apply {
             setAutoShapeType(true)
-            transformMatrix.scale(this@VisualiserCanvas.width / 2, this@VisualiserCanvas.height / 2, 0f)
+            transformMatrix.scale(this@Visualizer.width / 2, this@Visualizer.height / 2, 0f)
             transformMatrix.translate(1f, 1f, 0f)
         }
         spriteBatch = SpriteBatch().apply {
-            transformMatrix.scale(this@VisualiserCanvas.width / 2, this@VisualiserCanvas.height / 2, 0f)
+            transformMatrix.scale(this@Visualizer.width / 2, this@Visualizer.height / 2, 0f)
             transformMatrix.translate(1f, 1f, 0f)
         }
     }
@@ -132,8 +166,8 @@ class VisualiserCanvas(private val midiLoops: List<MidiLoop>) : ApplicationAdapt
             shapeRenderer.ellipseMidHandled(
                 currentNotePosX.toFloat(),
                 currentNotePosY.toFloat(),
-                2 * circleSize * currentNoteProgress,
-                2 * circleSize * currentNoteProgress
+                circleSize * currentNoteProgress + circleSize,
+                circleSize * currentNoteProgress + circleSize
             )
         }
         shapeRenderer.end()
@@ -147,40 +181,3 @@ fun Sprite.setPositionMidHandled(posX: Float, posY: Float) =
 
 fun ShapeRenderer.ellipseMidHandled(posX: Float, posY: Float, width: Float, height: Float, segments: Int = 64) =
     ellipse(posX - width / 2, posY - height / 2, width, height, segments)
-
-class MidiLoopVisualiser(midiLoop: List<MidiLoop>) {
-
-    init {
-        val config = Lwjgl3ApplicationConfiguration()
-        config.setForegroundFPS(144)
-        config.setResizable(true)
-        config.setWindowedMode(1000, 1000)
-        config.setWindowListener(object : Lwjgl3WindowListener {
-            override fun created(p0: Lwjgl3Window?) {
-            }
-
-            override fun iconified(p0: Boolean) {
-            }
-
-            override fun maximized(p0: Boolean) {
-            }
-
-            override fun focusLost() {
-            }
-
-            override fun focusGained() {
-            }
-
-            override fun closeRequested(): Boolean {
-                exitProcess(0)
-            }
-
-            override fun filesDropped(p0: Array<out String>?) {
-            }
-
-            override fun refreshRequested() {
-            }
-        })
-        Lwjgl3Application(VisualiserCanvas(midiLoop), config)
-    }
-}

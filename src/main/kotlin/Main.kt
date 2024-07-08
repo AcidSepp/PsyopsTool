@@ -7,8 +7,6 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.boolean
 import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.float
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import java.time.Duration
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -52,7 +50,7 @@ class PsyopsTool : CliktCommand() {
         }
 
         if (visualization) {
-            MidiLoopVisualiser(loops)
+            Visualizer(loops)
         }
     }
 
