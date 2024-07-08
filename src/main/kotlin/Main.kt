@@ -21,23 +21,20 @@ fun main(args: Array<String>) = PsyopsTool().main(args)
 class PsyopsTool : CliktCommand() {
 
     private val visualization: Boolean by option().boolean().default(true).help("Show visualization.")
-    private val outputDeviceName: String by option().default("DrumBrute").help("Output Device.")
-    private val inputDeviceName: String by option().default("DrumBrute")
+    private val outputDeviceName: String by option().default("Gervill").help("Output Device.")
+    private val inputDeviceName: String by option().default("Gervill")
         .help("Input Device. Ignored in internal clock mode.")
     private val bpm: Float by option().float().default(80f).help("Beats per minute. Ignored in external clock mode.")
-    private val clockMode: ClockMode by option().enum<ClockMode>().default(ClockMode.EXTERNAL).help("Clock mode.")
+    private val clockMode: ClockMode by option().enum<ClockMode>().default(ClockMode.INTERNAL).help("Clock mode.")
 
     override fun run() {
         val loops = listOf(
-            fillOneBarMidiLoop(8, 41),
-            fillOneBarMidiLoopWithChances(floatArrayOf(1.0f, 0.25f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.25f), 36),
-            fillOneBarMidiLoopWithChances(floatArrayOf(0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.25f), 38),
+            fillSteps(floatArrayOf(.6f, .6f, .6f, .6f, .6f, .6f, .6f, .6f), 16,43),
+            fillSteps(floatArrayOf(.3f, .3f, .3f, .3f, .3f, .3f, .3f, .3f), 16,44),
+            fillSteps(floatArrayOf(.5f), 1,45),
+            fillSteps(floatArrayOf(1.0f, 0.25f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.25f), 16,36),
+            fillSteps(floatArrayOf(0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.25f), 16, 37),
         )
-        val json = Json {
-            ignoreUnknownKeys = true
-            prettyPrint = true
-        }
-        println(json.encodeToString(loops))
 
         println("ALL MIDI DEVICES")
         MidiSystem.getMidiDeviceInfo().forEach(::println)

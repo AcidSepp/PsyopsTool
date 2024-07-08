@@ -20,21 +20,50 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.system.exitProcess
 
+val NOTE_NAME_TEXTURES = mapOf(
+    "C" to Texture(FileHandle("/Users/yannick/IdeaProjects/PsyopsTool/src/main/resources/C.png")),
+    "C#" to Texture(FileHandle("/Users/yannick/IdeaProjects/PsyopsTool/src/main/resources/C#.png")),
+    "D" to Texture(FileHandle("/Users/yannick/IdeaProjects/PsyopsTool/src/main/resources/D.png")),
+    "D#" to Texture(FileHandle("/Users/yannick/IdeaProjects/PsyopsTool/src/main/resources/D#.png")),
+    "E" to Texture(FileHandle("/Users/yannick/IdeaProjects/PsyopsTool/src/main/resources/E.png")),
+    "F" to Texture(FileHandle("/Users/yannick/IdeaProjects/PsyopsTool/src/main/resources/F.png")),
+    "F#" to Texture(FileHandle("/Users/yannick/IdeaProjects/PsyopsTool/src/main/resources/F#.png")),
+    "G" to Texture(FileHandle("/Users/yannick/IdeaProjects/PsyopsTool/src/main/resources/G.png")),
+    "G#" to Texture(FileHandle("/Users/yannick/IdeaProjects/PsyopsTool/src/main/resources/G#.png")),
+    "A" to Texture(FileHandle("/Users/yannick/IdeaProjects/PsyopsTool/src/main/resources/A.png")),
+    "A#" to Texture(FileHandle("/Users/yannick/IdeaProjects/PsyopsTool/src/main/resources/A#.png")),
+    "B" to Texture(FileHandle("/Users/yannick/IdeaProjects/PsyopsTool/src/main/resources/B.png"))
+)
+
 class VisualiserCanvas(val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
 
     private var width = 1000f
     private var height = 1000f
 
+    private var shapeRenderer: ShapeRenderer? = null
+    private var spriteBatch: SpriteBatch? = null
+
+    override fun create() {
+        shapeRenderer = ShapeRenderer().apply {
+            setAutoShapeType(true)
+        }
+        spriteBatch = SpriteBatch()
+    }
+
     override fun resize(width: Int, height: Int) {
         this.width = width.toFloat()
         this.height = height.toFloat()
+
+        shapeRenderer = ShapeRenderer().apply {
+            setAutoShapeType(true)
+        }
+        spriteBatch = SpriteBatch()
     }
 
     override fun render() {
         ScreenUtils.clear(0f, 0f, 0f, 1f)
 
-        val shapeRenderer = ShapeRenderer()
-        shapeRenderer.setAutoShapeType(true)
+        val shapeRenderer = shapeRenderer!!
         shapeRenderer.begin()
 
         for ((index, midiLoop) in midiLoops.withIndex()) {
@@ -46,21 +75,15 @@ class VisualiserCanvas(val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
                     val posX = cos(-progress * 2 * PI + (PI / 2)) * (width * getCircleRadius(index))
                     val posY = sin(-progress * 2 * PI + (PI / 2)) * (height * getCircleRadius(index))
 
-                    val spriteBatch = SpriteBatch()
+                    val spriteBatch = spriteBatch!!
+                    val texture = NOTE_NAME_TEXTURES[it.value.noteName]!!
                     spriteBatch.begin()
-
-                    val texture =
-                        Texture(FileHandle("/Users/yannick/IdeaProjects/PsyopsTool/src/main/resources/${it.value.noteName}.png"))
-
                     val sprite = Sprite(texture)
                     sprite.setSize(40f, 40f)
                     sprite.setPositionMidHandled(posX.toFloat() + width / 2, posY.toFloat() + height / 2f)
                     sprite.setAlpha(it.value.chance)
                     sprite.draw(spriteBatch)
-
                     spriteBatch.end()
-                    spriteBatch.dispose()
-                    texture.dispose()
                 }
 
             // draw position indicator
@@ -82,9 +105,13 @@ class VisualiserCanvas(val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
 
             drawCurrentNote(midiLoop, index, shapeRenderer)
         }
-
         shapeRenderer.end()
-        shapeRenderer.dispose()
+    }
+
+    override fun dispose() {
+        super.dispose()
+        shapeRenderer?.dispose()
+        spriteBatch?.dispose()
     }
 
     private fun drawCurrentNote(
