@@ -6,7 +6,9 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowListener
 import com.badlogic.gdx.files.FileHandle
-import com.badlogic.gdx.graphics.Color.*
+import com.badlogic.gdx.graphics.Color.GREEN
+import com.badlogic.gdx.graphics.Color.RED
+import com.badlogic.gdx.graphics.Color.BLACK
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
@@ -31,10 +33,6 @@ class VisualiserCanvas(private val midiLoops: List<MidiLoop>) : ApplicationAdapt
     private var spriteBatch: SpriteBatch? = null
 
     override fun create() {
-        shapeRenderer = ShapeRenderer().apply {
-            setAutoShapeType(true)
-        }
-        spriteBatch = SpriteBatch()
         noteNameTextures = NOTE_NAMES.associateWith {
             val resource = javaClass.getResource("/$it.png")
             val path = Path.of(resource!!.toURI())
@@ -48,8 +46,13 @@ class VisualiserCanvas(private val midiLoops: List<MidiLoop>) : ApplicationAdapt
 
         shapeRenderer = ShapeRenderer().apply {
             setAutoShapeType(true)
+            transformMatrix.scale(this@VisualiserCanvas.width / 2, this@VisualiserCanvas.height / 2, 0f)
+            transformMatrix.translate(1f, 1f, 0f)
         }
-        spriteBatch = SpriteBatch()
+        spriteBatch = SpriteBatch().apply {
+            transformMatrix.scale(this@VisualiserCanvas.width / 2, this@VisualiserCanvas.height / 2, 0f)
+            transformMatrix.translate(1f, 1f, 0f)
+        }
     }
 
     override fun render() {
@@ -64,44 +67,43 @@ class VisualiserCanvas(private val midiLoops: List<MidiLoop>) : ApplicationAdapt
             shapeRenderer.color = GREEN
             shapeRenderer.set(Line)
             val helperCircleRadius = getCircleRadius(index)
-            shapeRenderer.ellipse(
-                -helperCircleRadius * width + width / 2,
-                -helperCircleRadius * height + height / 2,
-                helperCircleRadius * width * 2f,
-                helperCircleRadius * height * 2f
+            shapeRenderer.ellipseMidHandled(
+                0f,
+                0f,
+                helperCircleRadius * 2,
+                helperCircleRadius * 2,
             )
             shapeRenderer.end()
 
             midiLoop.loop //
                 .forEach { //
-                    val progress: Double = it.key.toDouble() / midiLoop.amountTicks.toDouble()
-                    val posX = cos(-progress * 2 * PI + (PI / 2)) * (width * getCircleRadius(index))
-                    val posY = sin(-progress * 2 * PI + (PI / 2)) * (height * getCircleRadius(index))
+                    val progress = it.key.toFloat() / midiLoop.amountTicks.toFloat()
+                    val posX = cos(-progress * 2 * PI + (PI / 2)).toFloat() * getCircleRadius(index)
+                    val posY = sin(-progress * 2 * PI + (PI / 2)).toFloat() * getCircleRadius(index)
 
                     shapeRenderer.begin()
                     shapeRenderer.color = BLACK
                     shapeRenderer.set(Filled)
-                    shapeRenderer.circle(posX.toFloat() + width / 2, posY.toFloat() + height / 2f, 20f)
+                    shapeRenderer.ellipseMidHandled(posX, posY, 0.05f, 0.05f)
                     shapeRenderer.end()
 
-                    val texture = noteNameTextures[it.value.noteName]!!
                     spriteBatch.begin()
-                    val sprite = Sprite(texture)
-                    sprite.setSize(40f, 40f)
-                    sprite.setPositionMidHandled(posX.toFloat() + width / 2, posY.toFloat() + height / 2f)
+                    val sprite = Sprite(noteNameTextures[it.value.noteName]!!)
+                    sprite.setSize(0.05f, 0.05f)
+                    sprite.setPositionMidHandled(posX, posY)
                     sprite.setAlpha(it.value.chance)
                     sprite.draw(spriteBatch)
                     spriteBatch.end()
                 }
 
             // draw position indicator
-            val progress: Double = midiLoop.index / midiLoop.amountTicks.toDouble()
-            val posX = cos(-progress * 2 * PI + (PI / 2)) * (width * getCircleRadius(index))
-            val posY = sin(-progress * 2 * PI + (PI / 2)) * (height * getCircleRadius(index))
+            val progress = midiLoop.index.toFloat() / midiLoop.amountTicks.toFloat()
+            val posX = cos(-progress * 2 * PI + (PI / 2)) * getCircleRadius(index)
+            val posY = sin(-progress * 2 * PI + (PI / 2)) * getCircleRadius(index)
             shapeRenderer.begin()
             shapeRenderer.color = RED
             shapeRenderer.set(Filled)
-            shapeRenderer.circle(posX.toFloat() + width / 2, posY.toFloat() + height / 2, 20f)
+            shapeRenderer.ellipseMidHandled(posX.toFloat(), posY.toFloat(), 0.05f, 0.05f)
             shapeRenderer.end()
 
 //            drawCurrentNote(midiLoop, index, shapeRenderer)
@@ -136,10 +138,13 @@ class VisualiserCanvas(private val midiLoops: List<MidiLoop>) : ApplicationAdapt
 //    }
 }
 
-fun getCircleRadius(circleIndex: Int) = 0.45f - circleIndex * 0.05f
+fun getCircleRadius(circleIndex: Int) = 0.9f - circleIndex * 0.1f
 
 fun Sprite.setPositionMidHandled(posX: Float, posY: Float) =
     setPosition(posX - width / 2, posY - height / 2)
+
+fun ShapeRenderer.ellipseMidHandled(posX: Float, posY: Float, width: Float, height: Float, segments: Int = 64) =
+    ellipse(posX - width / 2, posY - height / 2, width, height, segments)
 
 class MidiLoopVisualiser(midiLoop: List<MidiLoop>) {
 
