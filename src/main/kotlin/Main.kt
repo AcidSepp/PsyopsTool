@@ -19,11 +19,11 @@ fun main(args: Array<String>) = PsyopsTool().main(args)
 class PsyopsTool : CliktCommand() {
 
     private val visualization: Boolean by option().boolean().default(true).help("Show visualization.")
-    private val outputDeviceName: String by option().default("Gervill").help("Output Device.")
-    private val inputDeviceName: String by option().default("Gervill")
+    private val outputDeviceName: String by option().default("DrumBrute").help("Output Device.")
+    private val inputDeviceName: String by option().default("DrumBrute")
         .help("Input Device. Ignored in internal clock mode.")
     private val bpm: Float by option().float().default(80f).help("Beats per minute. Ignored in external clock mode.")
-    private val clockMode: ClockMode by option().enum<ClockMode>().default(ClockMode.INTERNAL).help("Clock mode.")
+    private val clockMode: ClockMode by option().enum<ClockMode>().default(ClockMode.EXTERNAL).help("Clock mode.")
 
     override fun run() {
         val loops = listOf(
@@ -92,6 +92,10 @@ class PsyopsTool : CliktCommand() {
             outputDevice.receiver.send(ShortMessage(0xF3, 0, 0), -1) // All notes off
         })
         inputDevice.transmitter.receiver = object : Receiver {
+
+            var lastTimeStampNanos = System.nanoTime()
+            val wmaBpmCalculator = WmaBpmCalculator(10)
+
             override fun close() {
                 TODO("Not yet implemented")
             }
@@ -101,6 +105,10 @@ class PsyopsTool : CliktCommand() {
                     loops.forEach(MidiLoop::reset)
                 }
                 if (message.message[0] == ShortMessage.TIMING_CLOCK.toByte()) {
+                    val currentTimeStampNanos = System.nanoTime()
+                    println("${wmaBpmCalculator.next(currentTimeStampNanos - lastTimeStampNanos)} bpm")
+                    lastTimeStampNanos = currentTimeStampNanos
+
                     loops.forEach {
                         val event = it.tick()
                         if (event != null) {
