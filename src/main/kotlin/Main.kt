@@ -1,5 +1,3 @@
-package org.example
-
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.help
@@ -7,6 +5,10 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.boolean
 import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.float
+import org.example.MidiLoop
+import org.example.Visualizer
+import org.example.WmaBpmCalculator
+import org.example.fillSteps
 import java.time.Duration
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -19,11 +21,11 @@ fun main(args: Array<String>) = PsyopsTool().main(args)
 class PsyopsTool : CliktCommand() {
 
     private val visualization: Boolean by option().boolean().default(true).help("Show visualization.")
-    private val outputDeviceName: String by option().default("DrumBrute").help("Output Device.")
-    private val inputDeviceName: String by option().default("DrumBrute")
+    private val outputDeviceName: String by option().default("Gervill").help("Output Device.")
+    private val inputDeviceName: String by option().default("Gervill")
         .help("Input Device. Ignored in internal clock mode.")
     private val bpm: Float by option().float().default(80f).help("Beats per minute. Ignored in external clock mode.")
-    private val clockMode: ClockMode by option().enum<ClockMode>().default(ClockMode.EXTERNAL).help("Clock mode.")
+    private val clockMode: ClockMode by option().enum<ClockMode>().default(ClockMode.INTERNAL).help("Clock mode.")
 
     override fun run() {
         val loops = listOf(
