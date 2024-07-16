@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.Filled
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType.Line
 import com.badlogic.gdx.utils.ScreenUtils
+import drawStringVerticallyMidHandled
 import java.lang.Math.PI
 import java.nio.file.Path
 import kotlin.math.cos
@@ -180,7 +181,7 @@ class Visualizer(private val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
                 sprite.draw(spriteBatch)
                 spriteBatch.end()
 
-                fontDrawer.drawStringMidHandled("test", posX, posY, circleSize)
+                fontDrawer.drawStringVerticallyMidHandled(it.value.toString(), posX + circleSize / 1.5f, posY, circleSize / 4)
             }
     }
 

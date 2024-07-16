@@ -50,8 +50,8 @@ class MidiLoop(
     }
 
     fun reset() {
-        index = amountTicks -1
-        noteIndex = loop.size -1
+        index = amountTicks - 1
+        noteIndex = loop.size - 1
         currentNote = loop[0]
     }
 }
@@ -72,17 +72,12 @@ class Event(
     val durationInTicks = stopIndex - startIndex
     fun asNoteOff() = Event(ShortMessage.NOTE_OFF, channel, note, 96, chance, startIndex, stopIndex)
 
-    override fun toString() =
-        """command=$command
-           channel=$channel
-           note=$note
-           velocity=$velocity
-           chance=$chance
-           startIndex=$startIndex
-           stopIndex=$stopIndex
-           noteName=$noteName
-           durationInTicks=$durationInTicks"""
-            .trimIndent()
+    override fun toString() = """
+        note=$note
+        channel=$channel
+        velocity=$velocity
+        chance=$chance
+        """.trimIndent()
 }
 
 /**
