@@ -3,6 +3,10 @@ package org.example
 import FontDrawer
 import NOTE_NAMES
 import com.badlogic.gdx.ApplicationAdapter
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
+import com.badlogic.gdx.InputAdapter
+import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window
@@ -26,6 +30,7 @@ import kotlin.system.exitProcess
 class Visualizer(private val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
 
     private lateinit var noteNameTextures: Map<String, Texture>
+    private var debug = false
 
     private var width = 1000f
     private var height = 1000f
@@ -75,6 +80,14 @@ class Visualizer(private val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
             val path = Path.of(resource!!.toURI())
             Texture(FileHandle(path.toFile()))
         }
+        Gdx.input.inputProcessor = object : InputAdapter() {
+            override fun keyTyped(character: Char): Boolean {
+                if (character == 'd') {
+                    debug = !debug;
+                }
+                return true
+            }
+        }
     }
 
     override fun resize(width: Int, height: Int) {
@@ -102,6 +115,7 @@ class Visualizer(private val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
         val fontDrawer = fontDrawer!!
 
         for ((index, midiLoop) in midiLoops.withIndex()) {
+            renderUsage(fontDrawer)
             renderCurrentNotePlayingIndicator(midiLoop, index, shapeRenderer)
             renderHelperCircle(shapeRenderer, index)
             renderAllNotesInLoop(midiLoop, index, shapeRenderer, spriteBatch, fontDrawer)
@@ -114,6 +128,10 @@ class Visualizer(private val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
         shapeRenderer?.dispose()
         spriteBatch?.dispose()
         fontDrawer?.dispose()
+    }
+
+    private fun renderUsage(fontDrawer: FontDrawer) {
+        fontDrawer.drawStringVerticallyMidHandled("D: debug", -1f + circleSize / 2f, -1f + circleSize / 2f, circleSize / 4)
     }
 
     private fun renderCurrentNotePlayingIndicator(
@@ -182,7 +200,14 @@ class Visualizer(private val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
                 sprite.draw(spriteBatch)
                 spriteBatch.end()
 
-                fontDrawer.drawStringVerticallyMidHandled(it.value.toString(), posX + circleSize / 1.5f, posY, circleSize / 4)
+                if (debug) {
+                    fontDrawer.drawStringVerticallyMidHandled(
+                        it.value.toString(),
+                        posX + circleSize / 1.5f,
+                        posY,
+                        circleSize / 4
+                    )
+                }
             }
     }
 
