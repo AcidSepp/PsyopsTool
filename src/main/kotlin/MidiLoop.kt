@@ -1,50 +1,34 @@
 package org.example
 
-import kotlinx.serialization.Serializable
+import Note
 import javax.sound.midi.ShortMessage
-import kotlin.random.Random
 
 const val TICKS_PER_BAR = 96
-val NOTE_NAMES = arrayOf(
-    "C",
-    "C#",
-    "D",
-    "D#",
-    "E",
-    "F",
-    "F#",
-    "G",
-    "G#",
-    "A",
-    "A#",
-    "B"
-)
 
-@Serializable
 class MidiLoop(
-    var amountTicks: Int = 96, val loop: Map<Int, Event> = mapOf()
+    var amountTicks: Int = 96, val loop: Map<Int, Note> = mapOf()
 ) {
     var index: Int = amountTicks - 1
         private set
     var noteIndex: Int = loop.size - 1
-    var currentNote: Event? = loop[0]
+    var currentNote: Note? = loop[0]
         private set
 
-    fun tick(): Event? {
+    fun tick(): ShortMessage? {
         index = (index + 1) % amountTicks
         if (loop.containsKey(index)) {
             noteIndex = (noteIndex + 1) % loop.size
             val currentNote = loop[index]!!
             if (currentNote.isPlaying()) {
                 this.currentNote = currentNote
-                return currentNote
+                return currentNote.noteOnMessage()
             }
             return null
         }
         val currentNote = currentNote
         if (currentNote != null && index == currentNote.stopIndex) {
             this.currentNote = null
-            return currentNote.asNoteOff()
+            return currentNote.noteOffMessage()
         }
         return null
     }
@@ -54,30 +38,6 @@ class MidiLoop(
         noteIndex = loop.size - 1
         currentNote = loop[0]
     }
-}
-
-@Serializable
-class Event(
-    val command: Int,
-    val channel: Int,
-    val note: Int,
-    val velocity: Int,
-    val chance: Float,
-    val startIndex: Int,
-    val stopIndex: Int
-) {
-    fun isPlaying() = chance > Random.nextFloat()
-    fun asShortMessage() = ShortMessage(command, channel, note, velocity)
-    val noteName = NOTE_NAMES[note % NOTE_NAMES.size]
-    val durationInTicks = stopIndex - startIndex
-    fun asNoteOff() = Event(ShortMessage.NOTE_OFF, channel, note, 96, chance, startIndex, stopIndex)
-
-    override fun toString() = """
-        note=$note
-        channel=$channel
-        velocity=$velocity
-        chance=$chance
-        """.trimIndent()
 }
 
 /**
@@ -106,7 +66,7 @@ fun fillOneBarMidiLoopWithChances(chances: FloatArray, note: Int): MidiLoop {
 fun fillSteps(chances: FloatArray, subdivisions: Int, note: Int, length: Float = 1f): MidiLoop {
     val ticksPerNoteFloat = TICKS_PER_BAR.toFloat() / subdivisions
     val amountTicks = (chances.size * ticksPerNoteFloat).toInt()
-    val loop = mutableMapOf<Int, Event>()
+    val loop = mutableMapOf<Int, Note>()
     for ((index, chance) in chances.withIndex()) {
         if (chance != 0.0f) {
             val noteStartIndex = (ticksPerNoteFloat * index).toInt()
@@ -115,7 +75,7 @@ fun fillSteps(chances: FloatArray, subdivisions: Int, note: Int, length: Float =
             val noteLengthTicks = (nextNoteIndex - 1) - noteStartIndex
             val noteStopIndex = noteStartIndex + (noteLengthTicks * length).toInt()
 
-            loop[noteStartIndex] = Event(ShortMessage.NOTE_ON, 0, note, 96, chance, noteStartIndex, noteStopIndex)
+            loop[noteStartIndex] = Note(0, note, 96, chance, noteStartIndex, noteStopIndex)
         }
     }
     return MidiLoop(amountTicks, loop.toMap())

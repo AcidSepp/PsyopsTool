@@ -16,7 +16,7 @@ class MidiLoopTest {
             assertThat(loop.tick()).matches {
                 it!!
                 it.command == NOTE_ON &&
-                        it.note == 36
+                        it.data1 == 36
             }
             repeat(46) {
                 assertThat(loop.tick()).isNull()
@@ -25,12 +25,12 @@ class MidiLoopTest {
             assertThat(loop.tick()).matches {
                 it!!
                 it.command == NOTE_OFF &&
-                        it.note == 36
+                        it.data1 == 36
             }
             assertThat(loop.tick()).matches {
                 it!!
                 it.command == NOTE_ON &&
-                        it.note == 36
+                        it.data1 == 36
             }
             repeat(46) {
                 assertThat(loop.tick()).isNull()
@@ -39,7 +39,7 @@ class MidiLoopTest {
             assertThat(loop.tick()).matches {
                 it!!
                 it.command == NOTE_OFF &&
-                        it.note == 36
+                        it.data1 == 36
             }
         }
     }
@@ -52,7 +52,7 @@ class MidiLoopTest {
             assertThat(loop.tick()).matches {
                 it!!
                 it.command == NOTE_ON &&
-                        it.note == 36
+                        it.data1 == 36
             }
             repeat(22) {
                 assertThat(loop.tick()).isNull()
@@ -60,7 +60,7 @@ class MidiLoopTest {
             assertThat(loop.tick()).matches {
                 it!!
                 it.command == NOTE_OFF &&
-                        it.note == 36
+                        it.data1 == 36
             }
         }
     }
@@ -73,7 +73,7 @@ class MidiLoopTest {
             assertThat(loop.tick()).matches {
                 it!!
                 it.command == NOTE_ON &&
-                        it.note == 36
+                        it.data1 == 36
             }
             repeat(22) {
                 assertThat(loop.tick()).isNull()
@@ -81,7 +81,7 @@ class MidiLoopTest {
             assertThat(loop.tick()).matches {
                 it!!
                 it.command == NOTE_OFF &&
-                        it.note == 36
+                        it.data1 == 36
             }
             // no note should be played
             repeat(24) {
@@ -98,7 +98,7 @@ class MidiLoopTest {
             assertThat(loop.tick()).matches {
                 it!!
                 it.command == NOTE_ON &&
-                        it.note == 36
+                        it.data1 == 36
             }
             repeat(10) {
                 assertThat(loop.tick()).isNull()
@@ -106,7 +106,7 @@ class MidiLoopTest {
             assertThat(loop.tick()).matches {
                 it!!
                 it.command == NOTE_OFF &&
-                        it.note == 36
+                        it.data1 == 36
             }
             // no note should be played
             repeat(12) {
@@ -123,7 +123,7 @@ class MidiLoopTest {
         assertThat(loop.tick()).matches {
             it!!
             it.command == NOTE_ON &&
-                    it.note == 36
+                    it.data1 == 36
         }
         repeat(11) {
             assertThat(loop.tick()).isNull()
@@ -131,14 +131,14 @@ class MidiLoopTest {
         assertThat(loop.tick()).matches {
             it!!
             it.command == NOTE_OFF &&
-                    it.note == 36
+                    it.data1 == 36
         }
 
         // this note takes 14 steps
         assertThat(loop.tick()).matches {
             it!!
             it.command == NOTE_ON &&
-                    it.note == 36
+                    it.data1 == 36
         }
         repeat(12) {
             assertThat(loop.tick()).isNull()
@@ -146,7 +146,7 @@ class MidiLoopTest {
         assertThat(loop.tick()).matches {
             it!!
             it.command == NOTE_OFF &&
-                    it.note == 36
+                    it.data1 == 36
         }
     }
 
@@ -161,7 +161,7 @@ class MidiLoopTest {
             assertThat(loop.tick()).matches {
                 it!!
                 it.command == NOTE_ON &&
-                        it.note == 36
+                        it.data1 == 36
             }
             repeat(22) {
                 assertThat(loop.tick()).isNull()
@@ -169,7 +169,7 @@ class MidiLoopTest {
             assertThat(loop.tick()).matches {
                 it!!
                 it.command == NOTE_OFF &&
-                        it.note == 36
+                        it.data1 == 36
             }
             // wait for 2 quarter notes
             repeat(48) {
@@ -189,7 +189,7 @@ class MidiLoopTest {
             assertThat(loop.tick()).matches {
                 it!!
                 it.command == NOTE_ON &&
-                        it.note == 36
+                        it.data1 == 36
             }
             repeat(22) {
                 assertThat(loop.tick()).isNull()
@@ -197,7 +197,7 @@ class MidiLoopTest {
             assertThat(loop.tick()).matches {
                 it!!
                 it.command == NOTE_OFF &&
-                        it.note == 36
+                        it.data1 == 36
             }
             // wait for 4 quarter notes
             repeat(96) {
@@ -217,7 +217,7 @@ class MidiLoopTest {
             assertThat(loop.tick()).matches {
                 it!!
                 it.command == NOTE_ON &&
-                        it.note == 36
+                        it.data1 == 36
             }
             repeat(10) {
                 assertThat(loop.tick()).isNull()
@@ -225,7 +225,7 @@ class MidiLoopTest {
             assertThat(loop.tick()).matches {
                 it!!
                 it.command == NOTE_OFF &&
-                        it.note == 36
+                        it.data1 == 36
             }
             // wait for 4 quarter notes
             repeat(84) {

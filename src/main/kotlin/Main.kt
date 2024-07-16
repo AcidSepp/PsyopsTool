@@ -76,9 +76,7 @@ class PsyopsTool : CliktCommand() {
                 loops.forEach {
                     val event = it.tick()
                     if (event != null) {
-                        if (event.isPlaying()) {
-                            outputDevice.receiver.send(event.asShortMessage(), -1)
-                        }
+                        outputDevice.receiver.send(event, -1)
                     }
                 }
             } catch (e: Exception) {
@@ -114,9 +112,7 @@ class PsyopsTool : CliktCommand() {
                     loops.forEach {
                         val event = it.tick()
                         if (event != null) {
-                            if (event.isPlaying()) {
-                                outputDevice.receiver.send(event.asShortMessage(), -1)
-                            }
+                            outputDevice.receiver.send(event, -1)
                         }
                     }
                 }
