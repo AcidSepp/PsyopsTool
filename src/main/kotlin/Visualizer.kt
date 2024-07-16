@@ -1,5 +1,6 @@
 package org.example
 
+import FontDrawer
 import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration
@@ -30,6 +31,7 @@ class Visualizer(private val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
 
     private var shapeRenderer: ShapeRenderer? = null
     private var spriteBatch: SpriteBatch? = null
+    private var fontDrawer: FontDrawer? = null
 
     init {
         val config = Lwjgl3ApplicationConfiguration()
@@ -85,6 +87,8 @@ class Visualizer(private val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
         spriteBatch = SpriteBatch().apply {
             transformMatrix.scale(this@Visualizer.width / 2, this@Visualizer.height / 2, 0f)
             transformMatrix.translate(1f, 1f, 0f)
+
+            fontDrawer = FontDrawer(this)
         }
     }
 
@@ -93,11 +97,12 @@ class Visualizer(private val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
 
         val shapeRenderer = shapeRenderer!!
         val spriteBatch = spriteBatch!!
+        val fontDrawer = fontDrawer!!
 
         for ((index, midiLoop) in midiLoops.withIndex()) {
             renderCurrentNotePlayingIndicator(midiLoop, index, shapeRenderer)
             renderHelperCircle(shapeRenderer, index)
-            renderAllNotesInLoop(midiLoop, index, shapeRenderer, spriteBatch)
+            renderAllNotesInLoop(midiLoop, index, shapeRenderer, spriteBatch, fontDrawer)
             renderPositionIndicator(midiLoop, index, shapeRenderer)
         }
     }
@@ -106,6 +111,7 @@ class Visualizer(private val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
         super.dispose()
         shapeRenderer?.dispose()
         spriteBatch?.dispose()
+        fontDrawer?.dispose()
     }
 
     private fun renderCurrentNotePlayingIndicator(
@@ -151,7 +157,8 @@ class Visualizer(private val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
         midiLoop: MidiLoop,
         index: Int,
         shapeRenderer: ShapeRenderer,
-        spriteBatch: SpriteBatch
+        spriteBatch: SpriteBatch,
+        fontDrawer: FontDrawer
     ) {
         midiLoop.loop //
             .forEach { //
@@ -172,6 +179,8 @@ class Visualizer(private val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
                 sprite.setAlpha(it.value.chance)
                 sprite.draw(spriteBatch)
                 spriteBatch.end()
+
+                fontDrawer.drawStringMidHandled("test", posX, posY, circleSize)
             }
     }
 

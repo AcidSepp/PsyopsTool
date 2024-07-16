@@ -71,6 +71,18 @@ class Event(
     val noteName = NOTE_NAMES[note % NOTE_NAMES.size]
     val durationInTicks = stopIndex - startIndex
     fun asNoteOff() = Event(ShortMessage.NOTE_OFF, channel, note, 96, chance, startIndex, stopIndex)
+
+    override fun toString() =
+        """command=$command
+           channel=$channel
+           note=$note
+           velocity=$velocity
+           chance=$chance
+           startIndex=$startIndex
+           stopIndex=$stopIndex
+           noteName=$noteName
+           durationInTicks=$durationInTicks"""
+            .trimIndent()
 }
 
 /**

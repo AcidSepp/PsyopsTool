@@ -5,7 +5,7 @@ import java.io.File
 import javax.imageio.ImageIO
 
 fun generateCharacterBitmaps() {
-    val characters = ('A' .. 'Z') + ('0' .. '9')
+    val characters = ('A' .. 'Z') + ('0' .. '9') + '=' + '#'
     val font = Font("Joystix", Font.PLAIN, 64)
     val imageSize = 64
     val imageType = BufferedImage.TYPE_INT_ARGB
