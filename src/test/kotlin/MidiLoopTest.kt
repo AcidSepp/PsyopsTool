@@ -1,7 +1,4 @@
 import org.assertj.core.api.Assertions.assertThat
-import org.example.fillOneBarMidiLoop
-import org.example.fillOneBarMidiLoopWithChances
-import org.example.fillSteps
 import org.junit.jupiter.api.Test
 import javax.sound.midi.ShortMessage.NOTE_OFF
 import javax.sound.midi.ShortMessage.NOTE_ON

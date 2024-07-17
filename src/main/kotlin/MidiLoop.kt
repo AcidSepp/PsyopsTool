@@ -1,6 +1,3 @@
-package org.example
-
-import Note
 import javax.sound.midi.ShortMessage
 
 const val TICKS_PER_BAR = 96
@@ -44,26 +41,32 @@ class MidiLoop(
  * Fills one bar with the amount of notes given.
  * @param noteCount the count of notes in this bar. Can be an odd number.
  */
-fun fillOneBarMidiLoop(noteCount: Int, note: Int): MidiLoop {
+fun fillOneBarMidiLoop(
+    noteCount: Int, note: Int, length: Float = 1f, channel: Int = 0, velocity: Int = 127
+): MidiLoop {
     check(noteCount > 0)
     val array = FloatArray(noteCount)
     array.fill(1.0f)
-    return fillOneBarMidiLoopWithChances(array, note)
+    return fillOneBarMidiLoopWithChances(array, note, length, channel, velocity)
 }
 
 /**
  * Fills one bar with notes with the given chances.
  * The size of the array determines the subdivision of the notes.
  */
-fun fillOneBarMidiLoopWithChances(chances: FloatArray, note: Int): MidiLoop {
-    return fillSteps(chances, chances.size, note)
+fun fillOneBarMidiLoopWithChances(
+    chances: FloatArray, note: Int, length: Float = 1f, channel: Int = 0, velocity: Int = 127
+): MidiLoop {
+    return fillSteps(chances, chances.size, note, length, channel, velocity)
 }
 
 /**
  * Creates a Midi Loop with notes with the given chances.
  * This can be longer or shorter than a bar.
  */
-fun fillSteps(chances: FloatArray, subdivisions: Int, note: Int, length: Float = 1f): MidiLoop {
+fun fillSteps(
+    chances: FloatArray, subdivisions: Int, note: Int, length: Float = 1f, channel: Int = 0, velocity: Int = 127
+): MidiLoop {
     val ticksPerNoteFloat = TICKS_PER_BAR.toFloat() / subdivisions
     val amountTicks = (chances.size * ticksPerNoteFloat).toInt()
     val loop = mutableMapOf<Int, Note>()
@@ -75,7 +78,7 @@ fun fillSteps(chances: FloatArray, subdivisions: Int, note: Int, length: Float =
             val noteLengthTicks = (nextNoteIndex - 1) - noteStartIndex
             val noteStopIndex = noteStartIndex + (noteLengthTicks * length).toInt()
 
-            loop[noteStartIndex] = Note(0, note, 96, chance, noteStartIndex, noteStopIndex)
+            loop[noteStartIndex] = Note(channel, note, velocity, chance, noteStartIndex, noteStopIndex)
         }
     }
     return MidiLoop(amountTicks, loop.toMap())

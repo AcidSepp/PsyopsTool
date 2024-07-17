@@ -5,10 +5,8 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.boolean
 import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.float
-import org.example.MidiLoop
 import org.example.Visualizer
 import org.example.WmaBpmCalculator
-import org.example.fillSteps
 import java.time.Duration
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -29,10 +27,10 @@ class PsyopsTool : CliktCommand() {
 
     override fun run() {
         val loops = listOf(
-            fillSteps(floatArrayOf(.6f, .6f, .6f, .6f, .6f, .6f, .6f, .6f), 16,43),
-            fillSteps(floatArrayOf(.3f, .3f, .3f, .3f, .3f, .3f, .3f, .3f), 16,44),
-            fillSteps(floatArrayOf(.5f), 1,45),
-            fillSteps(floatArrayOf(1.0f, 0.25f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.25f), 16,36),
+            fillSteps(floatArrayOf(.6f, .6f, .6f, .6f, .6f, .6f, .6f, .6f), 16, 43, channel = 1),
+            fillSteps(floatArrayOf(.3f, .3f, .3f, .3f, .3f, .3f, .3f, .3f), 16, 44),
+            fillSteps(floatArrayOf(.5f), 1, 45),
+            fillSteps(floatArrayOf(1.0f, 0.25f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.25f), 16, 36),
             fillSteps(floatArrayOf(0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.25f), 16, 37),
         )
 
