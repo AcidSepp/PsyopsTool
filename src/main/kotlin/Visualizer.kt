@@ -26,7 +26,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.system.exitProcess
 
-class Visualizer(private val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
+class Visualizer(private val midiLoops: List<MidiLoop>, private val bpmProvider: () -> Float) : ApplicationAdapter() {
 
     private lateinit var noteNameTextures: Map<String, Texture>
     private var debug = false
@@ -130,7 +130,7 @@ class Visualizer(private val midiLoops: List<MidiLoop>) : ApplicationAdapter() {
     }
 
     private fun renderUsage(fontDrawer: FontDrawer) {
-        fontDrawer.drawStringVerticallyMidHandled("D: debug", -1f + circleSize / 2f, -1f + circleSize / 2f, circleSize / 4)
+        fontDrawer.drawStringVerticallyMidHandled("D: debug BPM: ${bpmProvider()}", -1f + circleSize / 2f, -1f + circleSize / 2f, circleSize / 4)
     }
 
     private fun renderCurrentNotePlayingIndicator(

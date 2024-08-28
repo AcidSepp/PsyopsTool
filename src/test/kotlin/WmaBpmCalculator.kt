@@ -12,12 +12,18 @@ class WmaBpmCalculator {
 
         val tickDuration60bpmNanos = Duration.ofSeconds(1).toNanos() / 24
 
-        assertThat(wmaBpmCalculator.next(tickDuration60bpmNanos)).isCloseTo(60f, Offset.offset(0.1f))
-        assertThat(wmaBpmCalculator.next(tickDuration60bpmNanos)).isCloseTo(60f, Offset.offset(0.1f))
-        assertThat(wmaBpmCalculator.next(tickDuration60bpmNanos)).isCloseTo(60f, Offset.offset(0.1f))
-        assertThat(wmaBpmCalculator.next(tickDuration60bpmNanos)).isCloseTo(60f, Offset.offset(0.1f))
-        assertThat(wmaBpmCalculator.next(tickDuration60bpmNanos)).isCloseTo(60f, Offset.offset(0.1f))
-        assertThat(wmaBpmCalculator.next(tickDuration60bpmNanos)).isCloseTo(60f, Offset.offset(0.1f))
+        wmaBpmCalculator.next(tickDuration60bpmNanos)
+        assertThat(wmaBpmCalculator.invoke()).isCloseTo(60f, Offset.offset(0.1f))
+        wmaBpmCalculator.next(tickDuration60bpmNanos)
+        assertThat(wmaBpmCalculator.invoke()).isCloseTo(60f, Offset.offset(0.1f))
+        wmaBpmCalculator.next(tickDuration60bpmNanos)
+        assertThat(wmaBpmCalculator.invoke()).isCloseTo(60f, Offset.offset(0.1f))
+        wmaBpmCalculator.next(tickDuration60bpmNanos)
+        assertThat(wmaBpmCalculator.invoke()).isCloseTo(60f, Offset.offset(0.1f))
+        wmaBpmCalculator.next(tickDuration60bpmNanos)
+        assertThat(wmaBpmCalculator.invoke()).isCloseTo(60f, Offset.offset(0.1f))
+        wmaBpmCalculator.next(tickDuration60bpmNanos)
+        assertThat(wmaBpmCalculator.invoke()).isCloseTo(60f, Offset.offset(0.1f))
     }
 
     @Test
@@ -26,13 +32,15 @@ class WmaBpmCalculator {
         val tickDuration60bpmNanos = Duration.ofSeconds(1).toNanos() / 24
         val tickDuration120bpmNanos = Duration.ofMillis(500).toNanos() / 24
         repeat(5) {
-            assertThat(wmaBpmCalculator.next(tickDuration60bpmNanos)).isCloseTo(60f, Offset.offset(0.1f))
+            wmaBpmCalculator.next(tickDuration60bpmNanos)
+            assertThat(wmaBpmCalculator.invoke()).isCloseTo(60f, Offset.offset(0.1f))
         }
         repeat(5) {
             wmaBpmCalculator.next(tickDuration120bpmNanos)
         }
         repeat(5) {
-            assertThat(wmaBpmCalculator.next(tickDuration120bpmNanos)).isCloseTo(120f, Offset.offset(0.1f))
+            wmaBpmCalculator.next(tickDuration120bpmNanos)
+            assertThat(wmaBpmCalculator.invoke()).isCloseTo(120f, Offset.offset(0.1f))
         }
     }
 }

@@ -19,19 +19,19 @@ fun main(args: Array<String>) = PsyopsTool().main(args)
 class PsyopsTool : CliktCommand() {
 
     private val visualization: Boolean by option().boolean().default(true).help("Show visualization.")
-    private val outputDeviceName: String by option().default("Gervill").help("Output Device.")
-    private val inputDeviceName: String by option().default("Gervill")
+    private val outputDeviceName: String by option("--output", "-o").default("Gervill").help("Output Device.")
+    private val inputDeviceName: String by option("--input", "-i").default("Gervill")
         .help("Input Device. Ignored in internal clock mode.")
     private val bpm: Float by option().float().default(80f).help("Beats per minute. Ignored in external clock mode.")
     private val clockMode: ClockMode by option().enum<ClockMode>().default(ClockMode.INTERNAL).help("Clock mode.")
 
     override fun run() {
         val loops = listOf(
-            fillSteps(floatArrayOf(.6f, .6f, .6f, .6f, .6f, .6f, .6f, .6f), 16, 43, channel = 1),
-            fillSteps(floatArrayOf(.3f, .3f, .3f, .3f, .3f, .3f, .3f, .3f), 16, 44),
+            fillSteps(floatArrayOf(1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.25f), 16, 36),
+            fillSteps(floatArrayOf(0f, 0f, 0f, 0f, 1f, 0f, 0f, 0f), 16, 37),
+            fillSteps(floatArrayOf(.1f, .1f, .1f, .1f, .1f, .1f, .1f, .1f), 8, 43, channel = 1),
+            fillSteps(floatArrayOf(.1f, .1f, .1f, .1f, .1f, .1f, .1f, .1f), 8, 44),
             fillSteps(floatArrayOf(.5f), 1, 45),
-            fillSteps(floatArrayOf(1.0f, 0.25f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.25f), 16, 36),
-            fillSteps(floatArrayOf(0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.25f), 16, 37),
         )
 
         println("ALL MIDI DEVICES")
@@ -42,15 +42,18 @@ class PsyopsTool : CliktCommand() {
         when (clockMode) {
             ClockMode.INTERNAL -> {
                 internalClockMode(outputDevice, loops)
+                if (visualization) {
+                    Visualizer(loops, { bpm })
+                }
             }
 
             ClockMode.EXTERNAL -> {
-                externalClockMode(inputDeviceName, outputDevice, loops)
+                val wmaBpmCalculator = WmaBpmCalculator(10)
+                externalClockMode(inputDeviceName, outputDevice, loops, wmaBpmCalculator)
+                if (visualization) {
+                    Visualizer(loops, wmaBpmCalculator)
+                }
             }
-        }
-
-        if (visualization) {
-            Visualizer(loops)
         }
     }
 
@@ -83,7 +86,7 @@ class PsyopsTool : CliktCommand() {
         }, 0, tickDuration, TimeUnit.MILLISECONDS)
     }
 
-    private fun externalClockMode(inputDeviceName: String, outputDevice: MidiDevice, loops: List<MidiLoop>) {
+    private fun externalClockMode(inputDeviceName: String, outputDevice: MidiDevice, loops: List<MidiLoop>, wmaBpmCalculator: WmaBpmCalculator) {
         val inputDevice = getInputDevice(inputDeviceName)
         Runtime.getRuntime().addShutdownHook(Thread {
             outputDevice.receiver.send(ShortMessage(ShortMessage.SYSTEM_RESET), -1)
@@ -92,7 +95,6 @@ class PsyopsTool : CliktCommand() {
         inputDevice.transmitter.receiver = object : Receiver {
 
             var lastTimeStampNanos = System.nanoTime()
-            val wmaBpmCalculator = WmaBpmCalculator(10)
 
             override fun close() {
                 TODO("Not yet implemented")
@@ -104,7 +106,7 @@ class PsyopsTool : CliktCommand() {
                 }
                 if (message.message[0] == ShortMessage.TIMING_CLOCK.toByte()) {
                     val currentTimeStampNanos = System.nanoTime()
-                    println("${wmaBpmCalculator.next(currentTimeStampNanos - lastTimeStampNanos)} bpm")
+                    wmaBpmCalculator.next(currentTimeStampNanos - lastTimeStampNanos)
                     lastTimeStampNanos = currentTimeStampNanos
 
                     loops.forEach {
