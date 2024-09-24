@@ -114,7 +114,7 @@ class Visualizer(private val midiLoops: List<MidiLoop>, private val bpmProvider:
         val fontDrawer = fontDrawer!!
 
         for ((index, midiLoop) in midiLoops.withIndex()) {
-            renderUsage(fontDrawer)
+            renderBottomRow(fontDrawer)
             renderCurrentNotePlayingIndicator(midiLoop, index, shapeRenderer)
             renderHelperCircle(shapeRenderer, index)
             renderAllNotesInLoop(midiLoop, index, shapeRenderer, spriteBatch, fontDrawer)
@@ -129,8 +129,8 @@ class Visualizer(private val midiLoops: List<MidiLoop>, private val bpmProvider:
         fontDrawer?.dispose()
     }
 
-    private fun renderUsage(fontDrawer: FontDrawer) {
-        fontDrawer.drawStringVerticallyMidHandled("D: debug BPM: ${bpmProvider()}", -1f + circleSize / 2f, -1f + circleSize / 2f, circleSize / 4)
+    private fun renderBottomRow(fontDrawer: FontDrawer) {
+        fontDrawer.drawStringVerticallyMidHandled("D:debug BPM:${bpmProvider()}", -1f + circleSize / 2f, -1f + circleSize / 2f, circleSize / 2)
     }
 
     private fun renderCurrentNotePlayingIndicator(

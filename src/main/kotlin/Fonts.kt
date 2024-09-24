@@ -4,12 +4,11 @@ import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
 
-fun generateCharacterBitmaps() {
-    val characters = ('A' .. 'Z') + ('0' .. '9') + '=' + '#' + '.'
-    val font = Font("Joystix", Font.PLAIN, 64)
+fun main() {
+    val characters = ('A'..'Z') + ('0'..'9') + '=' + '#' + '.' + ':'
+    val font = Font("joystix monospace", Font.PLAIN, 64)
     val imageSize = 64
     val imageType = BufferedImage.TYPE_INT_ARGB
-
     for (char in characters) {
         val image = BufferedImage(imageSize, imageSize, imageType)
 
@@ -23,11 +22,7 @@ fun generateCharacterBitmaps() {
 
         graphics.dispose()
 
-        val outputFile = File("/Users/yannick/IdeaProjects/PsyopsTool/src/main/resources/char_${char}.png")
+        val outputFile = File("/home/yannick/IdeaProjects/PsyopsTool/src/main/resources/char_${char}.png")
         ImageIO.write(image, "png", outputFile)
     }
-}
-
-fun main() {
-    generateCharacterBitmaps()
 }
