@@ -1,6 +1,6 @@
+import de.yw.psyops.WmaBpmCalculator
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.data.Offset
-import org.example.WmaBpmCalculator
 import org.junit.jupiter.api.Test
 import java.time.Duration
 

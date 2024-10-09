@@ -1,0 +1,1 @@
+gw installDist && build/install/PsyopsTool/bin/PsyopsTool -o Impact -i Impact -c EXTERNAL

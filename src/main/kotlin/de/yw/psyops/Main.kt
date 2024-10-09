@@ -1,10 +1,11 @@
+package de.yw.psyops
+
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.float
-import org.example.WmaBpmCalculator
 import java.time.Duration
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -20,30 +21,43 @@ class PsyopsTool : CliktCommand() {
     private val inputDeviceName: String by option("--input", "-i").default("Gervill")
         .help("Input Device. Ignored in internal clock mode.")
     private val bpm: Float by option().float().default(80f).help("Beats per minute. Ignored in external clock mode.")
-    private val clockMode: ClockMode by option().enum<ClockMode>().default(ClockMode.INTERNAL).help("Clock mode.")
+    private val clockMode: ClockMode by option("--clockMode", "-c").enum<ClockMode>().default(ClockMode.INTERNAL)
+        .help("Clock mode.")
     private lateinit var printer: Printer
 
     override fun run() {
         val loops = listOf(
-            fillOneBarMidiLoop(7, 37, 0.5f),
-//            fillOneBarMidiLoop(11, 37, 0.5f)
+            fillOneBarMidiLoop(7, 36, 0.5f), fillOneBarMidiLoop(11, 37, 0.5f)
         )
 
-//        println("ALL MIDI DEVICES")
-//        MidiSystem.getMidiDeviceInfo().forEach(::println)
+        println("ALL MIDI DEVICES")
+        MidiSystem.getMidiDeviceInfo().forEach(::println)
 
         val outputDevice = getOutputDevice(outputDeviceName)
 
         when (clockMode) {
             ClockMode.INTERNAL -> {
-                printer = Printer(loops) { bpm }
+                printer = Printer(loops, { bpm }, null, outputDevice.deviceInfo.name, clockMode)
                 internalClockMode(outputDevice, loops)
+                printer.reset()
             }
 
             ClockMode.EXTERNAL -> {
                 val wmaBpmCalculator = WmaBpmCalculator(10)
-                printer = Printer(loops, wmaBpmCalculator)
-                externalClockMode(inputDeviceName, outputDevice, loops, wmaBpmCalculator)
+                val inputDevice = getInputDevice(inputDeviceName)
+                Runtime.getRuntime().addShutdownHook(Thread {
+                    outputDevice.receiver.send(ShortMessage(ShortMessage.SYSTEM_RESET), -1)
+                    outputDevice.receiver.send(ShortMessage(0xF3, 0, 0), -1) // All notes off
+                })
+                printer = Printer(
+                    loops,
+                    wmaBpmCalculator,
+                    inputDevice.deviceInfo.name,
+                    outputDevice.deviceInfo.name,
+                    clockMode
+                )
+                externalClockMode(inputDevice, outputDevice, loops, wmaBpmCalculator)
+                printer.reset()
             }
         }
     }
@@ -79,13 +93,8 @@ class PsyopsTool : CliktCommand() {
     }
 
     private fun externalClockMode(
-        inputDeviceName: String, outputDevice: MidiDevice, loops: List<MidiLoop>, wmaBpmCalculator: WmaBpmCalculator
+        inputDevice: MidiDevice, outputDevice: MidiDevice, loops: List<MidiLoop>, wmaBpmCalculator: WmaBpmCalculator
     ) {
-        val inputDevice = getInputDevice(inputDeviceName)
-        Runtime.getRuntime().addShutdownHook(Thread {
-            outputDevice.receiver.send(ShortMessage(ShortMessage.SYSTEM_RESET), -1)
-            outputDevice.receiver.send(ShortMessage(0xF3, 0, 0), -1) // All notes off
-        })
         inputDevice.transmitter.receiver = object : Receiver {
 
             var lastTimeStampNanos = System.nanoTime()
@@ -97,6 +106,7 @@ class PsyopsTool : CliktCommand() {
             override fun send(message: MidiMessage, timeStamp: Long) {
                 if (message.message[0] == ShortMessage.START.toByte() || message.message[0] == ShortMessage.STOP.toByte()) {
                     loops.forEach(MidiLoop::reset)
+                    printer.reset()
                 }
                 if (message.message[0] == ShortMessage.TIMING_CLOCK.toByte()) {
                     val currentTimeStampNanos = System.nanoTime()
@@ -127,32 +137,32 @@ private fun getTickDurationFromBpm(bpm: Float): Long {
 
 private fun getOutputDevice(outputDeviceName: String): MidiDevice {
     val outputDevice = MidiSystem.getMidiDeviceInfo().map {
-            MidiSystem.getMidiDevice(it)
-        }.filter {
-            it.maxReceivers != 0
-        }.filter {
-            it.deviceInfo.name.contains(outputDeviceName)
-        }.onEach {
-//            println("Name: ${it.deviceInfo.name} Desc: ${it.deviceInfo.description}")
-//            println("MaxReceivers: ${it.maxReceivers} MaxTransmitters: ${it.maxTransmitters}")
-//            println()
-        }.first()!!
+        MidiSystem.getMidiDevice(it)
+    }.filter {
+        it.maxReceivers != 0
+    }.filter {
+        it.deviceInfo.name.contains(outputDeviceName)
+    }.onEach {
+        println("Name: ${it.deviceInfo.name} Desc: ${it.deviceInfo.description}")
+        println("MaxReceivers: ${it.maxReceivers} MaxTransmitters: ${it.maxTransmitters}")
+        println()
+    }.first()!!
     outputDevice.open()
     return outputDevice
 }
 
 private fun getInputDevice(inputDeviceName: String): MidiDevice {
     val inputDevice = MidiSystem.getMidiDeviceInfo().map {
-            MidiSystem.getMidiDevice(it)
-        }.filter {
-            it.maxTransmitters != 0
-        }.filter {
-            it.deviceInfo.name.contains(inputDeviceName)
-        }.onEach {
-//            println("Name: ${it.deviceInfo.name} Desc: ${it.deviceInfo.description}")
-//            println("MaxReceivers: ${it.maxReceivers} MaxTransmitters: ${it.maxTransmitters}")
-//            println()
-        }.first()!!
+        MidiSystem.getMidiDevice(it)
+    }.filter {
+        it.maxTransmitters != 0
+    }.filter {
+        it.deviceInfo.name.contains(inputDeviceName)
+    }.onEach {
+        println("Name: ${it.deviceInfo.name} Desc: ${it.deviceInfo.description}")
+        println("MaxReceivers: ${it.maxReceivers} MaxTransmitters: ${it.maxTransmitters}")
+        println()
+    }.first()!!
     inputDevice.open()
     return inputDevice
 }
