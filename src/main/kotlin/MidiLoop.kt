@@ -3,19 +3,19 @@ import javax.sound.midi.ShortMessage
 const val TICKS_PER_BAR = 96
 
 class MidiLoop(
-    var amountTicks: Int = 96, val loop: Map<Int, Note> = mapOf()
+    var amountTicks: Int = 96, val noteMap: Map<Int, Note> = mapOf()
 ) {
-    var index: Int = amountTicks - 1
+    var currentTick: Int = amountTicks - 1
         private set
-    var noteIndex: Int = loop.size - 1
-    var currentNote: Note? = loop[0]
+    var noteIndex: Int = noteMap.size - 1
+    var currentNote: Note? = noteMap[0]
         private set
 
     fun tick(): ShortMessage? {
-        index = (index + 1) % amountTicks
-        if (loop.containsKey(index)) {
-            noteIndex = (noteIndex + 1) % loop.size
-            val currentNote = loop[index]!!
+        currentTick = (currentTick + 1) % amountTicks
+        if (noteMap.containsKey(currentTick)) {
+            noteIndex = (noteIndex + 1) % noteMap.size
+            val currentNote = noteMap[currentTick]!!
             if (currentNote.isPlaying()) {
                 this.currentNote = currentNote
                 return currentNote.noteOnMessage()
@@ -23,7 +23,7 @@ class MidiLoop(
             return null
         }
         val currentNote = currentNote
-        if (currentNote != null && index == currentNote.stopIndex) {
+        if (currentNote != null && currentTick == currentNote.stopIndex) {
             this.currentNote = null
             return currentNote.noteOffMessage()
         }
@@ -31,9 +31,9 @@ class MidiLoop(
     }
 
     fun reset() {
-        index = amountTicks - 1
-        noteIndex = loop.size - 1
-        currentNote = loop[0]
+        currentTick = amountTicks - 1
+        noteIndex = noteMap.size - 1
+        currentNote = noteMap[0]
     }
 }
 
@@ -83,3 +83,14 @@ fun fillSteps(
     }
     return MidiLoop(amountTicks, loop.toMap())
 }
+
+val MidiLoop.previousTick
+    get() = if (currentTick == 0) {
+        amountTicks - 1
+    } else {
+        (currentTick - 1) % amountTicks
+    }
+
+
+val MidiLoop.nextTick
+    get() = (currentTick + 1) % amountTicks

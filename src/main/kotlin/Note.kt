@@ -26,7 +26,7 @@ class Note(
     val stopIndex: Int
 ) {
     fun isPlaying() = chance > Random.nextFloat()
-    val noteName = NOTE_NAMES[note % NOTE_NAMES.size]
+    val name = NOTE_NAMES[note % NOTE_NAMES.size]
     val durationInTicks = stopIndex - startIndex
     fun noteOnMessage() = ShortMessage(ShortMessage.NOTE_ON, channel, note, velocity)
     fun noteOffMessage() = ShortMessage(ShortMessage.NOTE_OFF, channel, note, 0)
