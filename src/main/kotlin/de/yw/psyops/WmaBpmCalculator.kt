@@ -1,4 +1,4 @@
-package org.example
+package de.yw.psyops
 
 import java.time.Duration
 

@@ -1,4 +1,4 @@
-// https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797
+package de.yw.psyops// https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797
 
 private const val ESC = "\u001B"
 
