@@ -1,6 +1,11 @@
 plugins {
     kotlin("jvm") version "2.0.0"
     kotlin("plugin.serialization") version "1.5.31"
+    application
+}
+
+application {
+    mainClass = "MainKt"
 }
 
 group = "org.example"
@@ -19,11 +24,9 @@ dependencies {
     implementation("com.github.ajalt.clikt:clikt:4.2.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
 
-
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:5.10.2")
     testImplementation("org.assertj:assertj-core:3.26.0")
-
 }
 
 tasks.test {
