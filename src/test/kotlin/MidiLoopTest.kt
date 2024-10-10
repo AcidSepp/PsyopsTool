@@ -233,12 +233,14 @@ class MidiLoopTest {
     }
 
     @Test
-    fun lastIndex() {
-        val loop = fillSteps(floatArrayOf(1f, 0f, 0f, 0f), 4, 36, 0.5f)
+    fun indexProperties() {
+        val loop = fillSteps(floatArrayOf(1f, 0.3f, 0f, 0.5f), 4, 36, 0.5f)
         assertThat(loop.amountTicks).isEqualTo(96)
         loop.tick()
         assertThat(loop.currentTick).isEqualTo(0)
         assertThat(loop.nextTick).isEqualTo(1)
         assertThat(loop.previousTick).isEqualTo(95)
+
+        assertThat(loop.currentNote!!.chance).isEqualTo(1f)
     }
 }
