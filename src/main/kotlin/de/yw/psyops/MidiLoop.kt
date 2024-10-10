@@ -7,16 +7,16 @@ const val TICKS_PER_BAR = 96
 class MidiLoop(
     var amountTicks: Int = 96, val noteMap: Map<Int, Note> = mapOf()
 ) {
-    var currentTick: Int = amountTicks - 1
+    var currentTick = lastTick
         private set
-    var noteIndex: Int = noteMap.size - 1
+    var noteIndex: Int = lastNoteIndex
     var currentNote: Note? = noteMap[0]
         private set
 
     fun tick(): ShortMessage? {
-        currentTick = (currentTick + 1) % amountTicks
+        currentTick = nextTick
         if (noteMap.containsKey(currentTick)) {
-            noteIndex = (noteIndex + 1) % noteMap.size
+            noteIndex = nextNoteIndex
             val currentNote = noteMap[currentTick]!!
             if (currentNote.isPlaying()) {
                 this.currentNote = currentNote
@@ -93,6 +93,14 @@ val MidiLoop.previousTick
         (currentTick - 1) % amountTicks
     }
 
-
 val MidiLoop.nextTick
     get() = (currentTick + 1) % amountTicks
+
+val MidiLoop.lastTick
+    get() = amountTicks - 1
+
+private val MidiLoop.lastNoteIndex
+    get() = noteMap.size - 1
+
+private val MidiLoop.nextNoteIndex
+    get() = (noteIndex + 1) % noteMap.size
