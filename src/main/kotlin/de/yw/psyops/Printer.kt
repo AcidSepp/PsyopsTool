@@ -1,6 +1,7 @@
 package de.yw.psyops
 
 import de.yw.psyops.Printer.State.*
+import java.util.*
 
 class Printer(
     private val loops: List<MidiLoop>,
@@ -12,9 +13,7 @@ class Printer(
 
     @Volatile
     private var display = NOTE
-
     private var midiLoopsAsStrings = listOf<String>()
-
 
     init {
         Runtime.getRuntime().addShutdownHook(Thread {
@@ -40,6 +39,7 @@ class Printer(
     }
 
     fun reset() {
+        Locale.setDefault(Locale.US);
         erase()
         printTopLine()
         midiLoopsAsStrings = loops.map { midiLoop ->
