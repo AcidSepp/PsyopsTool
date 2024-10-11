@@ -66,7 +66,6 @@ class PsyopsTool : CliktCommand() {
         outputDevice: MidiDevice, loops: List<MidiLoop>
     ) {
         val tickDuration = getTickDurationFromBpm(bpm)
-//        println("Step duration $tickDuration ms")
         Runtime.getRuntime().addShutdownHook(Thread {
             outputDevice.receiver.send(ShortMessage(ShortMessage.STOP), -1)
             outputDevice.receiver.send(ShortMessage(ShortMessage.SYSTEM_RESET), -1)
