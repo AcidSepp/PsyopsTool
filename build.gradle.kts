@@ -17,6 +17,8 @@ repositories {
 
 dependencies {
     implementation("com.github.ajalt.clikt:clikt:4.2.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+    implementation("org.jline:jline:3.27.0")
 
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
