@@ -87,9 +87,9 @@ class Printer(
                 } else {
                     if (lastPrintedNote != null) {
                         result += if (lastPrintedNote.containsTick(tickIndex)) {
-                            ":"
+                            "•"
                         } else {
-                            "."
+                            "·"
                         }
                     }
                 }
