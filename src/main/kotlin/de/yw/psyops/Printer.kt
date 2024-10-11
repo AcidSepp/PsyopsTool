@@ -1,5 +1,7 @@
 package de.yw.psyops
 
+import de.yw.psyops.Printer.State.*
+
 class Printer(
     private val loops: List<MidiLoop>,
     private val bpmProvider: () -> Float,
@@ -8,13 +10,38 @@ class Printer(
     private val clockMode: ClockMode
 ) {
 
-    private val midiLoopsAsStrings: List<String>
+    @Volatile
+    private var display = NOTE
+
+    private var midiLoopsAsStrings = listOf<String>()
+
 
     init {
         Runtime.getRuntime().addShutdownHook(Thread {
             makeCursorVisible()
         })
         makeCursorInvisible()
+        reset()
+    }
+
+    fun displayChances() {
+        display = CHANCE
+        reset()
+    }
+
+    fun displayNotes() {
+        display = NOTE
+        reset()
+    }
+
+    fun displayVelocities() {
+        display = VELOCITY
+        reset()
+    }
+
+    fun reset() {
+        erase()
+        printTopLine()
         midiLoopsAsStrings = loops.map { midiLoop ->
             var result = ""
             var skip = 0
@@ -27,17 +54,28 @@ class Printer(
                 if (note == null) {
                     result += "."
                 } else {
-                    skip = note.name.length - 1
-                    result += note.name
+                    when (display) {
+                        NOTE -> {
+                            skip = note.name.length - 1
+                            result += note.name
+                        }
+
+                        CHANCE -> {
+                            val chanceString = "%.1f".format(note.chance)
+                            skip = chanceString.length - 1
+                            result += chanceString
+                        }
+
+                        VELOCITY -> {
+                            val velocityString = note.velocity.toString()
+                            skip = velocityString.length - 1
+                            result += velocityString
+                        }
+                    }
                 }
             }
             return@map result
         }
-    }
-
-    fun reset() {
-        erase()
-        printTopLine()
         midiLoopsAsStrings.forEach(::println)
     }
 
@@ -64,5 +102,11 @@ class Printer(
         )
         eraseUntilEndOfLine()
         println()
+    }
+
+    private enum class State {
+        NOTE,
+        CHANCE,
+        VELOCITY
     }
 }

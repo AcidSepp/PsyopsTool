@@ -39,7 +39,7 @@ class PsyopsTool : CliktCommand() {
             ClockMode.INTERNAL -> {
                 printer = Printer(loops, { bpm }, null, outputDevice.deviceInfo.name, clockMode)
                 internalClockMode(outputDevice, loops)
-                printer.reset()
+                UserInput(printer).run()
             }
 
             ClockMode.EXTERNAL -> {
@@ -57,7 +57,7 @@ class PsyopsTool : CliktCommand() {
                     clockMode
                 )
                 externalClockMode(inputDevice, outputDevice, loops, wmaBpmCalculator)
-                printer.reset()
+                UserInput(printer).run()
             }
         }
     }
