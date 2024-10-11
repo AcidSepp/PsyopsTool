@@ -40,3 +40,5 @@ class Note(
         chance=$chance
         """.trimIndent()
 }
+
+fun Note.containsTick(tick: Int) = tick in startIndex..stopIndex

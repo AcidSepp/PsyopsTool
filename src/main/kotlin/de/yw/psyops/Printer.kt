@@ -12,7 +12,7 @@ class Printer(
 ) {
 
     @Volatile
-    private var display = NOTE
+    private var display = NOTE_NAME
     private var midiLoopsAsStrings = listOf<String>()
 
     init {
@@ -28,13 +28,18 @@ class Printer(
         reset()
     }
 
-    fun displayNotes() {
-        display = NOTE
+    fun displayNoteNames() {
+        display = NOTE_NAME
         reset()
     }
 
     fun displayVelocities() {
         display = VELOCITY
+        reset()
+    }
+
+    fun displayMidiPitch() {
+        display = MIDI_NOTE
         reset()
     }
 
@@ -45,17 +50,18 @@ class Printer(
         midiLoopsAsStrings = loops.map { midiLoop ->
             var result = ""
             var skip = 0
+            var lastPrintedNote: Note? = null
             for (tickIndex in 0 until midiLoop.amountTicks) {
                 if (skip != 0) {
                     skip--
                     continue
                 }
                 val note = midiLoop.noteMap[tickIndex]
-                if (note == null) {
-                    result += "."
-                } else {
+
+                if (note != null) {
+                    lastPrintedNote = note
                     when (display) {
-                        NOTE -> {
+                        NOTE_NAME -> {
                             skip = note.name.length - 1
                             result += note.name
                         }
@@ -70,6 +76,20 @@ class Printer(
                             val velocityString = note.velocity.toString()
                             skip = velocityString.length - 1
                             result += velocityString
+                        }
+
+                        MIDI_NOTE -> {
+                            val midiPitch = note.note.toString()
+                            skip = midiPitch.length - 1
+                            result += midiPitch
+                        }
+                    }
+                } else {
+                    if (lastPrintedNote != null) {
+                        result += if (lastPrintedNote.containsTick(tickIndex)) {
+                            ":"
+                        } else {
+                            "."
                         }
                     }
                 }
@@ -105,8 +125,9 @@ class Printer(
     }
 
     private enum class State {
-        NOTE,
+        NOTE_NAME,
         CHANCE,
-        VELOCITY
+        VELOCITY,
+        MIDI_NOTE
     }
 }

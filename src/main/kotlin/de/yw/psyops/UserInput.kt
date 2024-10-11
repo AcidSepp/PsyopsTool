@@ -16,11 +16,9 @@ class UserInput(private val printer: Printer) {
                     val reader = terminal.reader()
                     when (reader.read().toChar()) {
                         'c' -> printer.displayChances()
-                        'C' -> printer.displayChances()
-                        'n' -> printer.displayNotes()
-                        'N' -> printer.displayNotes()
+                        'n' -> printer.displayNoteNames()
                         'v' -> printer.displayVelocities()
-                        'V' -> printer.displayVelocities()
+                        'm' -> printer.displayMidiPitch()
                     }
                 }
             }
