@@ -25,3 +25,7 @@ fun moveCursorLeft(count: Int) = print("$ESC[${count}D")
 fun setUnderline() = print("$ESC[4m")
 
 fun resetUnderline() = print("$ESC[24m")
+
+fun disableLineWrapping() = print("$ESC[?7l")
+
+fun enableLineWrapping() = print("$ESC[?7h")

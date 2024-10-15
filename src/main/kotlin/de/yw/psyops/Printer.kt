@@ -1,6 +1,7 @@
 package de.yw.psyops
 
 import de.yw.psyops.Printer.State.*
+import org.jline.terminal.Terminal
 import java.util.*
 
 class Printer(
@@ -8,23 +9,26 @@ class Printer(
     private val bpmProvider: () -> Float,
     private val inputDeviceFullName: String?,
     private val outputDeviceFullName: String,
-    private val clockMode: ClockMode
+    private val clockMode: ClockMode,
+    private val terminal: Terminal
 ) {
 
     @Volatile
     private var display = NOTE_NAME
     private var midiLoopsAsStrings = listOf<String>()
 
+    private var lastWidth = 0
+    private var lastHeight = 0
+
     init {
         Runtime.getRuntime().addShutdownHook(Thread {
             makeCursorVisible()
+            enableLineWrapping()
         })
-        makeCursorInvisible()
-        reset()
     }
 
-    fun displayChances() {
-        display = CHANCE
+    fun displayPercentages() {
+        display = PERCENTAGE
         reset()
     }
 
@@ -43,9 +47,16 @@ class Printer(
         reset()
     }
 
+    fun displayChannels() {
+        display = CHANNEL
+        reset()
+    }
+
     fun reset() {
-        Locale.setDefault(Locale.US);
+        Locale.setDefault(Locale.US)
         erase()
+        disableLineWrapping()
+        makeCursorInvisible()
         printTopLine()
         midiLoopsAsStrings = loops.map { midiLoop ->
             var result = ""
@@ -66,8 +77,8 @@ class Printer(
                             result += note.name
                         }
 
-                        CHANCE -> {
-                            val chanceString = "%.1f".format(note.chance)
+                        PERCENTAGE -> {
+                            val chanceString = "%.0f".format(note.chance * 100) + "%"
                             skip = chanceString.length - 1
                             result += chanceString
                         }
@@ -79,9 +90,15 @@ class Printer(
                         }
 
                         MIDI_NOTE -> {
-                            val midiPitch = note.note.toString()
-                            skip = midiPitch.length - 1
-                            result += midiPitch
+                            val midiPitchString = note.note.toString()
+                            skip = midiPitchString.length - 1
+                            result += midiPitchString
+                        }
+
+                        CHANNEL -> {
+                            val channelString = note.channel.toString()
+                            skip = channelString.length - 1
+                            result += channelString
                         }
                     }
                 } else {
@@ -100,6 +117,12 @@ class Printer(
     }
 
     fun update() {
+        if (lastWidth != terminal.width || lastHeight != terminal.height) {
+            reset()
+        }
+        lastWidth = terminal.width
+        lastHeight = terminal.height
+
         printTopLine()
         for ((midiLoopIndex, midiLoop) in loops.withIndex()) {
             val midiLoopAsString = midiLoopsAsStrings[midiLoopIndex]
@@ -114,7 +137,7 @@ class Printer(
     }
 
     private fun printTopLine() {
-        val inputDevice = " inputDevice=${inputDeviceFullName}"
+        val inputDevice = if (inputDeviceFullName == null) "" else "inputDevice=${inputDeviceFullName}"
         printAt(
             0,
             0,
@@ -126,8 +149,9 @@ class Printer(
 
     private enum class State {
         NOTE_NAME,
-        CHANCE,
+        PERCENTAGE,
         VELOCITY,
-        MIDI_NOTE
+        MIDI_NOTE,
+        CHANNEL
     }
 }

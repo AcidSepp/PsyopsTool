@@ -6,6 +6,7 @@ import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.float
+import org.jline.terminal.TerminalBuilder
 import java.time.Duration
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -24,40 +25,33 @@ class PsyopsTool : CliktCommand() {
     private val clockMode: ClockMode by option("--clockMode", "-c").enum<ClockMode>().default(ClockMode.INTERNAL)
         .help("Clock mode.")
     private lateinit var printer: Printer
+    private val terminal = TerminalBuilder.builder().system(true).build()
 
     override fun run() {
         val loops = listOf(
             fillOneBarMidiLoop(7, 36, 0.5f), fillOneBarMidiLoop(11, 37, 0.5f)
         )
-
-        println("ALL MIDI DEVICES")
-        MidiSystem.getMidiDeviceInfo().forEach(::println)
-
         val outputDevice = getOutputDevice(outputDeviceName)
-
         when (clockMode) {
             ClockMode.INTERNAL -> {
-                printer = Printer(loops, { bpm }, null, outputDevice.deviceInfo.name, clockMode)
+                printer = Printer(loops, { bpm }, null, outputDevice.deviceInfo.name, clockMode, terminal)
                 internalClockMode(outputDevice, loops)
-                UserInput(printer).run()
+                UserInput(printer, terminal).run()
             }
 
             ClockMode.EXTERNAL -> {
                 val wmaBpmCalculator = WmaBpmCalculator(10)
                 val inputDevice = getInputDevice(inputDeviceName)
-                Runtime.getRuntime().addShutdownHook(Thread {
-                    outputDevice.receiver.send(ShortMessage(ShortMessage.SYSTEM_RESET), -1)
-                    outputDevice.receiver.send(ShortMessage(0xF3, 0, 0), -1) // All notes off
-                })
                 printer = Printer(
                     loops,
                     wmaBpmCalculator,
                     inputDevice.deviceInfo.name,
                     outputDevice.deviceInfo.name,
-                    clockMode
+                    clockMode,
+                    terminal
                 )
                 externalClockMode(inputDevice, outputDevice, loops, wmaBpmCalculator)
-                UserInput(printer).run()
+                UserInput(printer, terminal).run()
             }
         }
     }
@@ -94,6 +88,10 @@ class PsyopsTool : CliktCommand() {
     private fun externalClockMode(
         inputDevice: MidiDevice, outputDevice: MidiDevice, loops: List<MidiLoop>, wmaBpmCalculator: WmaBpmCalculator
     ) {
+        Runtime.getRuntime().addShutdownHook(Thread {
+            outputDevice.receiver.send(ShortMessage(ShortMessage.SYSTEM_RESET), -1)
+            outputDevice.receiver.send(ShortMessage(0xF3, 0, 0), -1) // All notes off
+        })
         inputDevice.transmitter.receiver = object : Receiver {
 
             var lastTimeStampNanos = System.nanoTime()
@@ -139,13 +137,9 @@ private fun getOutputDevice(outputDeviceName: String): MidiDevice {
         MidiSystem.getMidiDevice(it)
     }.filter {
         it.maxReceivers != 0
-    }.filter {
+    }.first {
         it.deviceInfo.name.contains(outputDeviceName)
-    }.onEach {
-        println("Name: ${it.deviceInfo.name} Desc: ${it.deviceInfo.description}")
-        println("MaxReceivers: ${it.maxReceivers} MaxTransmitters: ${it.maxTransmitters}")
-        println()
-    }.first()!!
+    }!!
     outputDevice.open()
     return outputDevice
 }
@@ -155,13 +149,9 @@ private fun getInputDevice(inputDeviceName: String): MidiDevice {
         MidiSystem.getMidiDevice(it)
     }.filter {
         it.maxTransmitters != 0
-    }.filter {
+    }.first {
         it.deviceInfo.name.contains(inputDeviceName)
-    }.onEach {
-        println("Name: ${it.deviceInfo.name} Desc: ${it.deviceInfo.description}")
-        println("MaxReceivers: ${it.maxReceivers} MaxTransmitters: ${it.maxTransmitters}")
-        println()
-    }.first()!!
+    }!!
     inputDevice.open()
     return inputDevice
 }
