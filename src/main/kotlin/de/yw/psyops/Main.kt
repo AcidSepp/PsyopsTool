@@ -29,7 +29,10 @@ class PsyopsTool : CliktCommand() {
 
     override fun run() {
         val loops = listOf(
-            fillOneBarMidiLoop(7, 36, 0.5f), fillOneBarMidiLoop(11, 37, 0.5f)
+            fillSteps(floatArrayOf(.6f, .6f, .6f, .6f, .6f, .6f, .6f, .6f), 8,43),
+            fillSteps(floatArrayOf(.3f, .3f, .3f, .3f, .3f, .3f, .3f, .3f), 8,44),
+            fillSteps(floatArrayOf(1.0f, 0.25f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.25f), 8,36),
+            fillSteps(floatArrayOf(0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.25f), 8, 37),
         )
         val outputDevice = getOutputDevice(outputDeviceName)
         when (clockMode) {
