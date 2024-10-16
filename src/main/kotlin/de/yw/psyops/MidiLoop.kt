@@ -7,6 +7,8 @@ const val TICKS_PER_BAR = 96
 class MidiLoop(
     var amountTicks: Int = 96, val noteMap: Map<Int, Note> = mapOf()
 ) {
+    var notesList = noteMap.entries.sortedBy { entry -> entry.key }.map { entry -> entry.value }
+
     var currentTick = lastTick
         private set
     var noteIndex: Int = lastNoteIndex

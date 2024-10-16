@@ -20,6 +20,18 @@ class Printer(
     private var lastWidth = 0
     private var lastHeight = 0
 
+    @Volatile
+    var selectedNoteIndex = 0
+
+    @Volatile
+    var selectedLoopIndex = 0
+
+    @Volatile
+    var selectedNote: Note = loops[0].notesList[0]
+
+    @Volatile
+    var selectedLoop: MidiLoop = loops[0]
+
     init {
         Runtime.getRuntime().addShutdownHook(Thread {
             makeCursorVisible()
@@ -50,6 +62,54 @@ class Printer(
     fun displayChannels() {
         display = CHANNEL
         reset()
+    }
+
+    fun incSelectedNote() {
+        val newNoteIndex = selectedNoteIndex + 1
+        if (newNoteIndex >= selectedLoop.notesList.size) {
+            return
+        }
+        resetSelectedNoteColor()
+        selectedNoteIndex = newNoteIndex
+        selectedNote = selectedLoop.notesList[newNoteIndex]
+        printSelectedNote()
+    }
+
+    fun decSelectedNote() {
+        val newNoteIndex = selectedNoteIndex - 1
+        if (newNoteIndex < 0) {
+            return
+        }
+        resetSelectedNoteColor()
+        selectedNoteIndex = newNoteIndex
+        selectedNote = selectedLoop.notesList[selectedNoteIndex]
+        printSelectedNote()
+    }
+
+    fun incSelectedLoop() {
+        val newLoopIndex = selectedLoopIndex + 1
+        if (newLoopIndex >= loops.size) {
+            return
+        }
+        resetSelectedNoteColor()
+        selectedLoopIndex = newLoopIndex
+        selectedLoop = loops[newLoopIndex]
+        selectedNoteIndex = Math.clamp(selectedNoteIndex.toLong(), 0, selectedLoop.notesList.size - 1)
+        selectedNote = selectedLoop.notesList[selectedNoteIndex]
+        printSelectedNote()
+    }
+
+    fun decSelectedLoop() {
+        val newLoopIndex = selectedLoopIndex - 1
+        if (newLoopIndex < 0) {
+            return
+        }
+        resetSelectedNoteColor()
+        selectedLoopIndex = newLoopIndex
+        selectedLoop = loops[newLoopIndex]
+        selectedNoteIndex = Math.clamp(selectedNoteIndex.toLong(), 0, selectedLoop.notesList.size - 1)
+        selectedNote = selectedLoop.notesList[selectedNoteIndex]
+        printSelectedNote()
     }
 
     fun reset() {
@@ -133,6 +193,8 @@ class Printer(
             setUnderline()
             printAt(midiLoopIndex + 1, midiLoop.currentTick, midiLoopAsString[midiLoop.currentTick].toString())
             resetUnderline()
+
+            printSelectedNote()
         }
     }
 
@@ -145,6 +207,18 @@ class Printer(
         )
         eraseUntilEndOfLine()
         println()
+    }
+
+    private fun printSelectedNote() {
+        val charToHighlight = midiLoopsAsStrings[selectedLoopIndex][selectedNote.startIndex]
+        setRed()
+        printAt(selectedLoopIndex + 1, selectedNote.startIndex, "$charToHighlight")
+        resetColor()
+    }
+
+    private fun resetSelectedNoteColor() {
+        val charToHighlight = midiLoopsAsStrings[selectedLoopIndex][selectedNote.startIndex]
+        printAt(selectedLoopIndex + 1, selectedNote.startIndex, "$charToHighlight")
     }
 
     private enum class State {
