@@ -37,6 +37,7 @@ class Printer(
             makeCursorVisible()
             enableLineWrapping()
         })
+        reset()
     }
 
     fun reset() {
@@ -89,12 +90,10 @@ class Printer(
                         }
                     }
                 } else {
-                    if (lastPrintedNote != null) {
-                        result += if (lastPrintedNote.containsTick(tickIndex)) {
-                            "•"
-                        } else {
-                            "·"
-                        }
+                    result += if (lastPrintedNote != null && lastPrintedNote.containsTick(tickIndex)) {
+                        "•"
+                    } else {
+                        "·"
                     }
                 }
             }
@@ -221,7 +220,7 @@ class Printer(
     }
 
     private fun printTopLine() {
-        val inputDevice = if (inputDeviceFullName == null) "" else "inputDevice=${inputDeviceFullName}"
+        val inputDevice = if (inputDeviceFullName == null) "" else " inputDevice=${inputDeviceFullName}"
         printAt(
             0,
             0,
@@ -244,10 +243,6 @@ class Printer(
     }
 
     private enum class State {
-        NOTE_NAME,
-        PERCENTAGE,
-        VELOCITY,
-        MIDI_NOTE,
-        CHANNEL
+        NOTE_NAME, PERCENTAGE, VELOCITY, MIDI_NOTE, CHANNEL
     }
 }

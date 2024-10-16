@@ -1,1 +1,1 @@
-./gradlew installDist && build/install/PsyopsTool/bin/PsyopsTool -o Gervill
+./gradlew installDist && build/install/PsyopsTool/bin/PsyopsTool -o Impact -i Impact -c EXTERNAL
