@@ -29,10 +29,31 @@ class PsyopsTool : CliktCommand() {
 
     override fun run() {
         val loops = listOf(
-            fillSteps(floatArrayOf(.6f, .0f, .6f, .6f, .0f, .6f, .6f), 8,43),
-            fillSteps(floatArrayOf(.3f, .0f, .3f, .0f, .3f), 8,44),
-            fillSteps(floatArrayOf(1.0f, 0.25f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.25f), 8,36),
-            fillSteps(floatArrayOf(0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.25f), 8, 37),
+            fillSteps(
+                floatArrayOf(1.0f, 0.25f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.25f),
+                8,
+                KICK
+            ),
+            fillSteps(
+                floatArrayOf(0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.25f),
+                8,
+                SNARE_1
+            ),
+            fillSteps(
+                floatArrayOf(0.0f, 0.0f, 0.1f, 0.1f, 0.0f, 0.0f, 0.1f, 0.1f),
+                8,
+                SNARE_2
+            ),
+            fillSteps(
+                floatArrayOf(0.3f, 0.0f, 0.3f, 0.0f, 0.3f, 0.0f, 0.3f, 0.0f),
+                8,
+                TOM_HI
+            ),
+            fillSteps(
+                floatArrayOf(0.0f, 0.3f, 0.0f, 0.3f, 0.0f, 0.3f, 0.0f, 0.3f),
+                8,
+                FM_DRUMS
+            ),
         )
         val outputDevice = getOutputDevice(outputDeviceName)
         when (clockMode) {
