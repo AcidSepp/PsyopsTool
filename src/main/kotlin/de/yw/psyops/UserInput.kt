@@ -24,6 +24,8 @@ class UserInput(private val printer: Printer, private val terminal: Terminal) {
                         'w' -> printer.decSelectedLoop()
                         'a' -> printer.decSelectedNote()
                         'd' -> printer.incSelectedNote()
+                        '+' -> printer.increaseSelectedNote()
+                        '-' -> printer.decreaseSelectedNote()
                     }
                 }
             }
