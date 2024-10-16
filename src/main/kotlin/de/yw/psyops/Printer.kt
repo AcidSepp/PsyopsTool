@@ -39,6 +39,92 @@ class Printer(
         })
     }
 
+    fun reset() {
+        Locale.setDefault(Locale.US)
+        erase()
+        disableLineWrapping()
+        makeCursorInvisible()
+        printTopLine()
+        midiLoopsAsStrings = loops.map { midiLoop ->
+            var result = ""
+            var skip = 0
+            var lastPrintedNote: Note? = null
+            for (tickIndex in 0 until midiLoop.amountTicks) {
+                if (skip != 0) {
+                    skip--
+                    continue
+                }
+                val note = midiLoop.noteMap[tickIndex]
+
+                if (note != null) {
+                    lastPrintedNote = note
+                    when (display) {
+                        NOTE_NAME -> {
+                            skip = note.name.length - 1
+                            result += note.name
+                        }
+
+                        PERCENTAGE -> {
+                            val chanceString = "%.0f".format(note.chance * 100) + "%"
+                            skip = chanceString.length - 1
+                            result += chanceString
+                        }
+
+                        VELOCITY -> {
+                            val velocityString = note.velocity.toString()
+                            skip = velocityString.length - 1
+                            result += velocityString
+                        }
+
+                        MIDI_NOTE -> {
+                            val midiPitchString = note.midiNote.toString()
+                            skip = midiPitchString.length - 1
+                            result += midiPitchString
+                        }
+
+                        CHANNEL -> {
+                            val channelString = note.channel.toString()
+                            skip = channelString.length - 1
+                            result += channelString
+                        }
+                    }
+                } else {
+                    if (lastPrintedNote != null) {
+                        result += if (lastPrintedNote.containsTick(tickIndex)) {
+                            "•"
+                        } else {
+                            "·"
+                        }
+                    }
+                }
+            }
+            return@map result
+        }
+        midiLoopsAsStrings.forEach(::println)
+    }
+
+    fun update() {
+        if (lastWidth != terminal.width || lastHeight != terminal.height) {
+            reset()
+        }
+        lastWidth = terminal.width
+        lastHeight = terminal.height
+
+        printTopLine()
+        for ((midiLoopIndex, midiLoop) in loops.withIndex()) {
+            val midiLoopAsString = midiLoopsAsStrings[midiLoopIndex]
+
+            resetUnderline()
+            printAt(midiLoopIndex + 1, midiLoop.previousTick, midiLoopAsString[midiLoop.previousTick].toString())
+
+            setUnderline()
+            printAt(midiLoopIndex + 1, midiLoop.currentTick, midiLoopAsString[midiLoop.currentTick].toString())
+            resetUnderline()
+
+            printSelectedNote()
+        }
+    }
+
     fun displayPercentages() {
         display = PERCENTAGE
         reset()
@@ -94,7 +180,7 @@ class Printer(
         resetSelectedNoteColor()
         selectedLoopIndex = newLoopIndex
         selectedLoop = loops[newLoopIndex]
-        selectedNoteIndex = Math.clamp(selectedNoteIndex.toLong(), 0, selectedLoop.notesList.size - 1)
+        selectedNoteIndex = selectedNoteIndex.coerceIn(0, selectedLoop.notesList.size - 1)
         selectedNote = selectedLoop.notesList[selectedNoteIndex]
         printSelectedNote()
     }
@@ -107,95 +193,31 @@ class Printer(
         resetSelectedNoteColor()
         selectedLoopIndex = newLoopIndex
         selectedLoop = loops[newLoopIndex]
-        selectedNoteIndex = Math.clamp(selectedNoteIndex.toLong(), 0, selectedLoop.notesList.size - 1)
+        selectedNoteIndex = selectedNoteIndex.coerceIn(0, selectedLoop.notesList.size - 1)
         selectedNote = selectedLoop.notesList[selectedNoteIndex]
         printSelectedNote()
     }
 
-    fun reset() {
-        Locale.setDefault(Locale.US)
-        erase()
-        disableLineWrapping()
-        makeCursorInvisible()
-        printTopLine()
-        midiLoopsAsStrings = loops.map { midiLoop ->
-            var result = ""
-            var skip = 0
-            var lastPrintedNote: Note? = null
-            for (tickIndex in 0 until midiLoop.amountTicks) {
-                if (skip != 0) {
-                    skip--
-                    continue
-                }
-                val note = midiLoop.noteMap[tickIndex]
-
-                if (note != null) {
-                    lastPrintedNote = note
-                    when (display) {
-                        NOTE_NAME -> {
-                            skip = note.name.length - 1
-                            result += note.name
-                        }
-
-                        PERCENTAGE -> {
-                            val chanceString = "%.0f".format(note.chance * 100) + "%"
-                            skip = chanceString.length - 1
-                            result += chanceString
-                        }
-
-                        VELOCITY -> {
-                            val velocityString = note.velocity.toString()
-                            skip = velocityString.length - 1
-                            result += velocityString
-                        }
-
-                        MIDI_NOTE -> {
-                            val midiPitchString = note.note.toString()
-                            skip = midiPitchString.length - 1
-                            result += midiPitchString
-                        }
-
-                        CHANNEL -> {
-                            val channelString = note.channel.toString()
-                            skip = channelString.length - 1
-                            result += channelString
-                        }
-                    }
-                } else {
-                    if (lastPrintedNote != null) {
-                        result += if (lastPrintedNote.containsTick(tickIndex)) {
-                            "•"
-                        } else {
-                            "·"
-                        }
-                    }
-                }
-            }
-            return@map result
+    fun increaseSelectedNote() {
+        when (display) {
+            NOTE_NAME -> selectedNote.increasePitch()
+            PERCENTAGE -> selectedNote.increaseChance()
+            VELOCITY -> selectedNote.increaseVelocity()
+            MIDI_NOTE -> selectedNote.increasePitch()
+            CHANNEL -> selectedNote.increaseChannel()
         }
-        midiLoopsAsStrings.forEach(::println)
+        reset()
     }
 
-    fun update() {
-        if (lastWidth != terminal.width || lastHeight != terminal.height) {
-            reset()
+    fun decreaseSelectedNote() {
+        when (display) {
+            NOTE_NAME -> selectedNote.decreasePitch()
+            PERCENTAGE -> selectedNote.decreaseChance()
+            VELOCITY -> selectedNote.decreaseVelocity()
+            MIDI_NOTE -> selectedNote.decreasePitch()
+            CHANNEL -> selectedNote.decreaseChannel()
         }
-        lastWidth = terminal.width
-        lastHeight = terminal.height
-
-        printTopLine()
-        for ((midiLoopIndex, midiLoop) in loops.withIndex()) {
-            val midiLoopAsString = midiLoopsAsStrings[midiLoopIndex]
-
-            resetUnderline()
-            printAt(midiLoopIndex + 1, midiLoop.previousTick, midiLoopAsString[midiLoop.previousTick].toString())
-
-            setUnderline()
-            printAt(midiLoopIndex + 1, midiLoop.currentTick, midiLoopAsString[midiLoop.currentTick].toString())
-            resetUnderline()
-
-            printSelectedNote()
-        }
+        reset()
     }
 
     private fun printTopLine() {
