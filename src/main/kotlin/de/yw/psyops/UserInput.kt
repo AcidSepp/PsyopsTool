@@ -20,6 +20,10 @@ class UserInput(private val printer: Printer, private val terminal: Terminal) {
                         'v' -> printer.displayVelocities()
                         'm' -> printer.displayMidiPitch()
                         'p' -> printer.displayPercentages()
+                        's' -> printer.incSelectedLoop()
+                        'w' -> printer.decSelectedLoop()
+                        'a' -> printer.decSelectedNote()
+                        'd' -> printer.incSelectedNote()
                     }
                 }
             }
