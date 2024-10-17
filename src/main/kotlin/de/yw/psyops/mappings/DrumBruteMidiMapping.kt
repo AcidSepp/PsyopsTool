@@ -1,4 +1,4 @@
-package de.yw.psyops
+package de.yw.psyops.mappings
 
 const val KICK = 36
 const val SNARE_1 = 37

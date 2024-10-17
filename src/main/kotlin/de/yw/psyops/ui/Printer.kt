@@ -1,6 +1,7 @@
-package de.yw.psyops
+package de.yw.psyops.ui
 
-import de.yw.psyops.Printer.State.*
+import de.yw.psyops.*
+import de.yw.psyops.ui.Printer.State.*
 import org.jline.terminal.Terminal
 import java.util.*
 
