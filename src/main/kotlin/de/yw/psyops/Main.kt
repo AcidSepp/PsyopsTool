@@ -1,6 +1,7 @@
 package de.yw.psyops
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
@@ -10,10 +11,12 @@ import de.yw.psyops.scripting.loadLoopsFromScript
 import de.yw.psyops.ui.Printer
 import de.yw.psyops.ui.UserInput
 import org.jline.terminal.TerminalBuilder
+import java.io.File
 import java.time.Duration
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import javax.sound.midi.*
+import kotlin.io.path.Path
 
 private const val ticksPerQuarterNote = 24
 
@@ -27,12 +30,15 @@ class PsyopsTool : CliktCommand() {
     private val bpm: Float by option().float().default(80f).help("Beats per minute. Ignored in external clock mode.")
     private val clockMode: ClockMode by option("--clockMode", "-c").enum<ClockMode>().default(ClockMode.INTERNAL)
         .help("Clock mode.")
+    private val loops: List<MidiLoop> by option("--preset", "-p").convert {
+        loadLoopsFromScript(File(it))
+    }.default(listOf())
+
     private lateinit var printer: Printer
     private val terminal = TerminalBuilder.builder().system(true).build()
 
     override fun run() {
 
-        val loops = loadLoopsFromScript()
 
         val outputDevice = getOutputDevice(outputDeviceName)
         when (clockMode) {
