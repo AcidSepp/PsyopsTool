@@ -1,5 +1,6 @@
-package de.yw.psyops
+package de.yw.psyops.scripting
 
+import de.yw.psyops.MidiLoop
 import java.io.File
 import kotlin.script.experimental.api.ScriptDiagnostic
 import kotlin.script.experimental.api.constructorArgs

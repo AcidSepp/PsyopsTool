@@ -1,10 +1,9 @@
-package de.yw.psyops
+package de.yw.psyops.ui
 
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.jline.terminal.Terminal
-import org.jline.terminal.TerminalBuilder
 
 class UserInput(private val printer: Printer, private val terminal: Terminal) {
 

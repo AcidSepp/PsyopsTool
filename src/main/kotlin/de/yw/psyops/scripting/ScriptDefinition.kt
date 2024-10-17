@@ -1,5 +1,6 @@
-package de.yw.psyops
+package de.yw.psyops.scripting
 
+import de.yw.psyops.MidiLoop
 import kotlin.script.experimental.annotations.KotlinScript
 
 @KotlinScript(
