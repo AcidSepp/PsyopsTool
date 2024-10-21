@@ -15,7 +15,7 @@ class Printer(
 ) {
 
     @Volatile
-    private var display = NOTE_NAME
+    private var displayMode = NOTE_NAME
     private var midiLoopsAsStrings = listOf<String>()
 
     private var lastWidth = 0
@@ -57,48 +57,53 @@ class Printer(
                     continue
                 }
                 val note = midiLoop.noteMap[tickIndex]
-
-                if (note != null) {
-                    lastPrintedNote = note
-                    when (display) {
-                        NOTE_NAME -> {
-                            skip = note.name.length - 1
-                            result += note.name
-                        }
-
-                        PERCENTAGE -> {
-                            val chanceString = "%.0f".format(note.chance * 100) + "%"
-                            skip = chanceString.length - 1
-                            result += chanceString
-                        }
-
-                        VELOCITY -> {
-                            val velocityString = note.velocity.toString()
-                            skip = velocityString.length - 1
-                            result += velocityString
-                        }
-
-                        MIDI_PITCH -> {
-                            val midiPitchString = note.midiPitch.toString()
-                            skip = midiPitchString.length - 1
-                            result += midiPitchString
-                        }
-
-                        CHANNEL -> {
-                            val channelString = note.channel.toString()
-                            skip = channelString.length - 1
-                            result += channelString
-                        }
-                    }
-                } else {
+                if (note == null) {
                     result += if (lastPrintedNote != null && lastPrintedNote.containsTick(tickIndex)) {
                         "•"
                     } else {
                         "·"
                     }
+                    continue
+                }
+
+                if (note.percentage == 0f) {
+                    result += "_"
+                    continue
+                }
+
+                lastPrintedNote = note
+                when (displayMode) {
+                    NOTE_NAME -> {
+                        skip = note.name.length - 1
+                        result += note.name
+                    }
+
+                    PERCENTAGE -> {
+                        val chanceString = "%.0f".format(note.percentage * 100) + "%"
+                        skip = chanceString.length - 1
+                        result += chanceString
+                    }
+
+                    VELOCITY -> {
+                        val velocityString = note.velocity.toString()
+                        skip = velocityString.length - 1
+                        result += velocityString
+                    }
+
+                    MIDI_PITCH -> {
+                        val midiPitchString = note.midiPitch.toString()
+                        skip = midiPitchString.length - 1
+                        result += midiPitchString
+                    }
+
+                    CHANNEL -> {
+                        val channelString = note.channel.toString()
+                        skip = channelString.length - 1
+                        result += channelString
+                    }
                 }
             }
-            return@map result
+            result
         }
         midiLoopsAsStrings.forEach(::println)
     }
@@ -126,27 +131,27 @@ class Printer(
     }
 
     fun displayPercentages() {
-        display = PERCENTAGE
+        displayMode = PERCENTAGE
         reset()
     }
 
     fun displayNoteNames() {
-        display = NOTE_NAME
+        displayMode = NOTE_NAME
         reset()
     }
 
     fun displayVelocities() {
-        display = VELOCITY
+        displayMode = VELOCITY
         reset()
     }
 
     fun displayMidiPitch() {
-        display = MIDI_PITCH
+        displayMode = MIDI_PITCH
         reset()
     }
 
     fun displayChannels() {
-        display = CHANNEL
+        displayMode = CHANNEL
         reset()
     }
 
@@ -199,7 +204,7 @@ class Printer(
     }
 
     fun increaseSelectedNote() {
-        when (display) {
+        when (displayMode) {
             NOTE_NAME -> selectedNote.increasePitch()
             PERCENTAGE -> selectedNote.increaseChance()
             VELOCITY -> selectedNote.increaseVelocity()
@@ -210,7 +215,7 @@ class Printer(
     }
 
     fun decreaseSelectedNote() {
-        when (display) {
+        when (displayMode) {
             NOTE_NAME -> selectedNote.decreasePitch()
             PERCENTAGE -> selectedNote.decreaseChance()
             VELOCITY -> selectedNote.decreaseVelocity()
