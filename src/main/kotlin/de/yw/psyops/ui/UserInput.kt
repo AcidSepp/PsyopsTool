@@ -25,6 +25,18 @@ class UserInput(private val printer: Printer, private val terminal: Terminal) {
                         'd' -> printer.incSelectedNote()
                         '+' -> printer.increaseSelectedNote()
                         '-' -> printer.decreaseSelectedNote()
+                        ESC -> {
+                            when (reader.read().toChar()) {
+                                '[' -> {
+                                    when (reader.read().toChar()) {
+                                        'B' -> printer.incSelectedLoop()
+                                        'A' -> printer.decSelectedLoop()
+                                        'D' -> printer.decSelectedNote()
+                                        'C' -> printer.incSelectedNote()
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

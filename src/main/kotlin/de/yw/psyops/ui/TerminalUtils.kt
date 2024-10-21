@@ -2,7 +2,7 @@ package de.yw.psyops.ui
 
 // https://gist.github.com/fnky/458719343aabd01cfb17a3a4f7296797
 
-private const val ESC = "\u001B"
+const val ESC = '\u001B'
 
 const val ANSI_RESET = "$ESC[0m"
 const val ANSI_BLACK = "$ESC[30m"
