@@ -1,6 +1,6 @@
 package de.yw.psyops.scripting
 
-import de.yw.psyops.mappings.KICK
+import de.yw.psyops.masks.KICK
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir

@@ -1,6 +1,7 @@
 package de.yw.psyops.ui
 
 import de.yw.psyops.*
+import de.yw.psyops.masks.NoteNameMask
 import de.yw.psyops.ui.Printer.State.*
 import org.jline.terminal.Terminal
 import java.util.*
@@ -11,7 +12,8 @@ class Printer(
     private val inputDeviceFullName: String?,
     private val outputDeviceFullName: String,
     private val clockMode: ClockMode,
-    private val terminal: Terminal
+    private val terminal: Terminal,
+    private val noteNameMask: NoteNameMask
 ) {
 
     @Volatile
@@ -47,6 +49,7 @@ class Printer(
         disableLineWrapping()
         makeCursorInvisible()
         printTopLine()
+        printBottomLine()
         midiLoopsAsStrings = loops.map { midiLoop ->
             var result = ""
             var skip = 0
@@ -74,14 +77,14 @@ class Printer(
                 lastPrintedNote = note
                 when (displayMode) {
                     NOTE_NAME -> {
-                        skip = note.name.length - 1
-                        result += note.name
+                        skip = noteNameMask[note.midiPitch].length - 1
+                        result += noteNameMask[note.midiPitch]
                     }
 
                     PERCENTAGE -> {
-                        val chanceString = "%.0f".format(note.percentage * 100) + "%"
-                        skip = chanceString.length - 1
-                        result += chanceString
+                        val percentageString = "%.0f".format(note.percentage * 100) + "%"
+                        skip = percentageString.length - 1
+                        result += percentageString
                     }
 
                     VELOCITY -> {
@@ -105,7 +108,10 @@ class Printer(
             }
             result
         }
-        midiLoopsAsStrings.forEach(::println)
+        for ((midiLoopIndex, midiLoopAsString) in midiLoopsAsStrings.withIndex()) {
+            printAt(midiLoopIndex  + 1, 0, midiLoopAsString)
+        }
+        printSelectedNote()
     }
 
     fun update() {
@@ -116,6 +122,7 @@ class Printer(
         lastHeight = terminal.height
 
         printTopLine()
+        printBottomLine()
         for ((midiLoopIndex, midiLoop) in loops.withIndex()) {
             val midiLoopAsString = midiLoopsAsStrings[midiLoopIndex]
 
@@ -126,8 +133,8 @@ class Printer(
             printAt(midiLoopIndex + 1, midiLoop.currentTick, midiLoopAsString[midiLoop.currentTick].toString())
             resetUnderline()
 
-            printSelectedNote()
         }
+        printSelectedNote()
     }
 
     fun displayPercentages() {
@@ -234,6 +241,14 @@ class Printer(
         )
         eraseUntilEndOfLine()
         println()
+    }
+
+    private fun printBottomLine() {
+        val percentageString = "%.0f".format(selectedNote.percentage * 100) + "%"
+        terminal.printAtBottomLine("${SET_UNDERLINE}n${RESET_UNDERLINE}ame=${noteNameMask[selectedNote.midiPitch]} " +
+                "${SET_UNDERLINE}m${RESET_UNDERLINE}idiPitch=${selectedNote.midiPitch} " +
+                "${SET_UNDERLINE}v${RESET_UNDERLINE}elocity=${selectedNote.velocity} " +
+                "${SET_UNDERLINE}p${RESET_UNDERLINE}ercentage=$percentageString")
     }
 
     private fun printSelectedNote() {

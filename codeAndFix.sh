@@ -1,1 +1,1 @@
-./gradlew installDist && build/install/PsyopsTool/bin/PsyopsTool -o Gervill --blank=4
+./gradlew installDist && build/install/PsyopsTool/bin/PsyopsTool -o Gervill --blank=4 --noteNameMask=DRUMBRUTE_IMPACT
