@@ -10,7 +10,10 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.float
 import com.github.ajalt.clikt.parameters.types.int
-import de.yw.psyops.mappings.KICK
+import de.yw.psyops.masks.GenericKeyboardMask
+import de.yw.psyops.masks.KICK
+import de.yw.psyops.masks.NoteNameMask
+import de.yw.psyops.masks.NoteNameMasks
 import de.yw.psyops.scripting.loadLoopsFromScript
 import de.yw.psyops.ui.Printer
 import de.yw.psyops.ui.UserInput
@@ -20,7 +23,6 @@ import java.time.Duration
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import javax.sound.midi.*
-import kotlin.io.path.Path
 
 private const val ticksPerQuarterNote = 24
 
@@ -34,6 +36,10 @@ class PsyopsTool : CliktCommand() {
     private val bpm: Float by option().float().default(80f).help("Beats per minute. Ignored in external clock mode.")
     private val clockMode: ClockMode by option("--clockMode", "-c").enum<ClockMode>().default(ClockMode.INTERNAL)
         .help("Clock mode.")
+    private val noteNameMask: NoteNameMask by option("--noteNameMask").enum<NoteNameMasks>().convert {
+        it.mask
+    }.default(GenericKeyboardMask)
+    // @formatter:off
     private val loops: List<MidiLoop> by mutuallyExclusiveOptions(
         option("--script", "-s").help("Absolute path to your script to create the midi loops.").convert {
             loadLoopsFromScript(File(it))
@@ -42,8 +48,8 @@ class PsyopsTool : CliktCommand() {
             1.rangeTo(it).map {
                 fillOneBarMidiLoop(8, KICK, percentage = 0f)
             }
-        }
-    ).default(listOf(fillOneBarMidiLoop(8, KICK, percentage = 0f)))
+        }).default(listOf(fillOneBarMidiLoop(8, KICK, percentage = 0f)))
+    // @formatter:on
 
     private lateinit var printer: Printer
     private val terminal = TerminalBuilder.builder().system(true).build()
@@ -52,7 +58,7 @@ class PsyopsTool : CliktCommand() {
         val outputDevice = getOutputDevice(outputDeviceName)
         when (clockMode) {
             ClockMode.INTERNAL -> {
-                printer = Printer(loops, { bpm }, null, outputDevice.deviceInfo.name, clockMode, terminal)
+                printer = Printer(loops, { bpm }, null, outputDevice.deviceInfo.name, clockMode, terminal, noteNameMask)
                 internalClockMode(outputDevice, loops)
                 UserInput(printer, terminal).run()
             }
@@ -66,7 +72,8 @@ class PsyopsTool : CliktCommand() {
                     inputDevice.deviceInfo.name,
                     outputDevice.deviceInfo.name,
                     clockMode,
-                    terminal
+                    terminal,
+                    noteNameMask
                 )
                 externalClockMode(inputDevice, outputDevice, loops, wmaBpmCalculator)
                 UserInput(printer, terminal).run()

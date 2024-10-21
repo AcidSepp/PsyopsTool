@@ -1,22 +1,9 @@
 package de.yw.psyops
 
+import de.yw.psyops.masks.GenericKeyboardMask
+import de.yw.psyops.masks.NoteNameMask
 import javax.sound.midi.ShortMessage
 import kotlin.random.Random
-
-val NOTE_NAMES = arrayOf(
-    "C",
-    "C#",
-    "D",
-    "D#",
-    "E",
-    "F",
-    "F#",
-    "G",
-    "G#",
-    "A",
-    "A#",
-    "B"
-)
 
 @Suppress("MemberVisibilityCanBePrivate")
 class Note(
@@ -25,10 +12,9 @@ class Note(
     var velocity: Int,
     var percentage: Float,
     val startIndex: Int,
-    val stopIndex: Int
+    val stopIndex: Int,
 ) {
     fun isPlaying() = percentage > Random.nextFloat()
-    val name get() = NOTE_NAMES[midiPitch % NOTE_NAMES.size]
     val durationInTicks = stopIndex - startIndex
     fun noteOnMessage() = ShortMessage(ShortMessage.NOTE_ON, channel, midiPitch, velocity)
     fun noteOffMessage() = ShortMessage(ShortMessage.NOTE_OFF, channel, midiPitch, 0)
