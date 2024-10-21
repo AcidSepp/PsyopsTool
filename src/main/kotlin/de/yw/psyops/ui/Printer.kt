@@ -78,8 +78,8 @@ class Printer(
                             result += velocityString
                         }
 
-                        MIDI_NOTE -> {
-                            val midiPitchString = note.midiNote.toString()
+                        MIDI_PITCH -> {
+                            val midiPitchString = note.midiPitch.toString()
                             skip = midiPitchString.length - 1
                             result += midiPitchString
                         }
@@ -141,7 +141,7 @@ class Printer(
     }
 
     fun displayMidiPitch() {
-        display = MIDI_NOTE
+        display = MIDI_PITCH
         reset()
     }
 
@@ -203,7 +203,7 @@ class Printer(
             NOTE_NAME -> selectedNote.increasePitch()
             PERCENTAGE -> selectedNote.increaseChance()
             VELOCITY -> selectedNote.increaseVelocity()
-            MIDI_NOTE -> selectedNote.increasePitch()
+            MIDI_PITCH -> selectedNote.increasePitch()
             CHANNEL -> selectedNote.increaseChannel()
         }
         reset()
@@ -214,7 +214,7 @@ class Printer(
             NOTE_NAME -> selectedNote.decreasePitch()
             PERCENTAGE -> selectedNote.decreaseChance()
             VELOCITY -> selectedNote.decreaseVelocity()
-            MIDI_NOTE -> selectedNote.decreasePitch()
+            MIDI_PITCH -> selectedNote.decreasePitch()
             CHANNEL -> selectedNote.decreaseChannel()
         }
         reset()
@@ -244,6 +244,6 @@ class Printer(
     }
 
     private enum class State {
-        NOTE_NAME, PERCENTAGE, VELOCITY, MIDI_NOTE, CHANNEL
+        NOTE_NAME, PERCENTAGE, VELOCITY, MIDI_PITCH, CHANNEL
     }
 }

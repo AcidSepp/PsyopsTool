@@ -1,12 +1,16 @@
 package de.yw.psyops
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.parameters.groups.default
+import com.github.ajalt.clikt.parameters.groups.mutuallyExclusiveOptions
 import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.float
+import com.github.ajalt.clikt.parameters.types.int
+import de.yw.psyops.mappings.KICK
 import de.yw.psyops.scripting.loadLoopsFromScript
 import de.yw.psyops.ui.Printer
 import de.yw.psyops.ui.UserInput
@@ -30,16 +34,21 @@ class PsyopsTool : CliktCommand() {
     private val bpm: Float by option().float().default(80f).help("Beats per minute. Ignored in external clock mode.")
     private val clockMode: ClockMode by option("--clockMode", "-c").enum<ClockMode>().default(ClockMode.INTERNAL)
         .help("Clock mode.")
-    private val loops: List<MidiLoop> by option("--preset", "-p").convert {
-        loadLoopsFromScript(File(it))
-    }.default(listOf())
+    private val loops: List<MidiLoop> by mutuallyExclusiveOptions(
+        option("--script", "-s").help("Absolute path to your script to create the midi loops.").convert {
+            loadLoopsFromScript(File(it))
+        },
+        option("--blank", "-b").int().help("Create n empty midi loops.").convert {
+            1.rangeTo(it).map {
+                fillOneBarMidiLoop(8, KICK)
+            }
+        }
+    ).default(listOf(fillOneBarMidiLoop(8, KICK)))
 
     private lateinit var printer: Printer
     private val terminal = TerminalBuilder.builder().system(true).build()
 
     override fun run() {
-
-
         val outputDevice = getOutputDevice(outputDeviceName)
         when (clockMode) {
             ClockMode.INTERNAL -> {
