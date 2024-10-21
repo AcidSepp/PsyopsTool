@@ -2,7 +2,7 @@
 
 This is a simple JVM based MIDI Looper with a text based UI.
 
-[![PsyOps Tool Demo](https://img.youtube.com/vi/etXwQflREE/0.jpg)](https://www.youtube.com/watch?v=etXwQflREE)
+[![PsyOps Tool Demo](https://img.youtube.com/vi/zetXwQflREE/0.jpg)](https://www.youtube.com/watch?v=zetXwQflREE)
 
 ## Features
 - External Clock Mode: Sync to the MIDI Clock from an external MIDI device e.g. a Drum Machine.
