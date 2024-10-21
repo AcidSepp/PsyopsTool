@@ -46,42 +46,42 @@ class MidiLoop(
  * @param noteCount the count of notes in this bar. Can be an odd number.
  */
 fun fillOneBarMidiLoop(
-    noteCount: Int, note: Int, length: Float = 1f, channel: Int = 0, velocity: Int = 127, percentage: Float = 1f
+    noteCount: Int, note: Int, length: Float = 1f, channel: Int = 0, velocity: Int = 127, probability: Float = 1f
 ): MidiLoop {
     check(noteCount > 0)
-    val percentages = FloatArray(noteCount)
-    percentages.fill(percentage)
-    return fillOneBarMidiLoopWithPercentages(percentages, note, length, channel, velocity)
+    val probabilitys = FloatArray(noteCount)
+    probabilitys.fill(probability)
+    return fillOneBarMidiLoopWithProbabilitys(probabilitys, note, length, channel, velocity)
 }
 
 /**
- * Fills one bar with notes with the given percentages.
+ * Fills one bar with notes with the given probabilitys.
  * The size of the array determines the subdivision of the notes.
  */
-fun fillOneBarMidiLoopWithPercentages(
-    percentages: FloatArray, note: Int, length: Float = 1f, channel: Int = 0, velocity: Int = 127
+fun fillOneBarMidiLoopWithProbabilitys(
+    probabilitys: FloatArray, note: Int, length: Float = 1f, channel: Int = 0, velocity: Int = 127
 ): MidiLoop {
-    return fillSteps(percentages, percentages.size, note, length, channel, velocity)
+    return fillSteps(probabilitys, probabilitys.size, note, length, channel, velocity)
 }
 
 /**
- * Creates a Midi Loop with notes with the given percentages.
+ * Creates a Midi Loop with notes with the given probabilitys.
  * This can be longer or shorter than a bar.
  */
 fun fillSteps(
-    percentages: FloatArray, subdivisions: Int, note: Int, length: Float = 1f, channel: Int = 0, velocity: Int = 127
+    probabilitys: FloatArray, subdivisions: Int, note: Int, length: Float = 1f, channel: Int = 0, velocity: Int = 127
 ): MidiLoop {
     val ticksPerNoteFloat = TICKS_PER_BAR.toFloat() / subdivisions
-    val amountTicks = (percentages.size * ticksPerNoteFloat).toInt()
+    val amountTicks = (probabilitys.size * ticksPerNoteFloat).toInt()
     val loop = mutableMapOf<Int, Note>()
-    for ((index, percentage) in percentages.withIndex()) {
+    for ((index, probability) in probabilitys.withIndex()) {
         val noteStartIndex = (ticksPerNoteFloat * index).toInt()
         val nextNoteIndex = (ticksPerNoteFloat * (index + 1)).toInt()
 
         val noteLengthTicks = (nextNoteIndex - 1) - noteStartIndex
         val noteStopIndex = noteStartIndex + (noteLengthTicks * length).toInt()
 
-        loop[noteStartIndex] = Note(channel, note, velocity, percentage, noteStartIndex, noteStopIndex)
+        loop[noteStartIndex] = Note(channel, note, velocity, probability, noteStartIndex, noteStopIndex)
     }
     return MidiLoop(amountTicks, loop.toMap())
 }

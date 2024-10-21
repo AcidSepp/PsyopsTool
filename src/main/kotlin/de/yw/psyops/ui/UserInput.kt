@@ -18,7 +18,7 @@ class UserInput(private val printer: Printer, private val terminal: Terminal) {
                         'n' -> printer.displayNoteNames()
                         'v' -> printer.displayVelocities()
                         'm' -> printer.displayMidiPitch()
-                        'p' -> printer.displayPercentages()
+                        'p' -> printer.displayProbabilitys()
                         's' -> printer.incSelectedLoop()
                         'w' -> printer.decSelectedLoop()
                         'a' -> printer.decSelectedNote()
