@@ -109,7 +109,7 @@ class Printer(
             result
         }
         for ((midiLoopIndex, midiLoopAsString) in midiLoopsAsStrings.withIndex()) {
-            printAt(midiLoopIndex  + 1, 0, midiLoopAsString)
+            printAt(midiLoopIndex + 1, 0, midiLoopAsString)
         }
         printSelectedNote()
     }
@@ -244,12 +244,29 @@ class Printer(
     }
 
     private fun printBottomLine() {
-        val percentageString = "%.0f".format(selectedNote.percentage * 100) + "%"
-        terminal.printAtBottomLine("${SET_UNDERLINE}n${RESET_UNDERLINE}ame=${noteNameMask[selectedNote.midiPitch]} " +
-                "${SET_UNDERLINE}m${RESET_UNDERLINE}idiPitch=${selectedNote.midiPitch} " +
-                "${SET_UNDERLINE}v${RESET_UNDERLINE}elocity=${selectedNote.velocity} " +
-                "${SET_UNDERLINE}p${RESET_UNDERLINE}ercentage=$percentageString")
+        var noteNameString = "${SET_UNDERLINE}n${RESET_UNDERLINE}ame=${noteNameMask[selectedNote.midiPitch]}"
+        var midiPitchString = "${SET_UNDERLINE}m${RESET_UNDERLINE}idiPitch=${selectedNote.midiPitch}"
+        var velocityString = "${SET_UNDERLINE}v${RESET_UNDERLINE}elocity=${selectedNote.velocity}"
+        var percentageString =
+            "${SET_UNDERLINE}p${RESET_UNDERLINE}ercentage=${"%.0f".format(selectedNote.percentage * 100) + "%"}"
+        var channelString = "${SET_UNDERLINE}c${RESET_UNDERLINE}hannel=${selectedNote.channel}"
+
+        when (displayMode) {
+            NOTE_NAME -> noteNameString = ANSI_RED + noteNameString + ANSI_RESET
+
+            PERCENTAGE -> percentageString = ANSI_RED + percentageString + ANSI_RESET
+
+            VELOCITY -> velocityString = ANSI_RED + velocityString + ANSI_RESET
+
+            MIDI_PITCH -> midiPitchString = ANSI_RED + midiPitchString + ANSI_RESET
+            CHANNEL -> channelString = ANSI_RED + channelString + ANSI_RESET
+        }
+
+        terminal.printAtBottomLine(
+            "$noteNameString $midiPitchString $velocityString $percentageString $channelString"
+        )
     }
+
 
     private fun printSelectedNote() {
         val charToHighlight = midiLoopsAsStrings[selectedLoopIndex][selectedNote.startIndex]
