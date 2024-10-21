@@ -18,7 +18,7 @@ fun loadLoopsFromScript(
     val compilationConfiguration = createJvmCompilationConfigurationFromTemplate<SimpleScript> {
         jvm {
             dependenciesFromCurrentContext(wholeClasspath = true)
-            defaultImports.put(listOf("de.yw.psyops.*", "de.yw.psyops.mappings.*"))
+            defaultImports.put(listOf("de.yw.psyops.*", "de.yw.psyops.masks.*"))
         }
     }
     val pluginContextImpl = PluginContextImpl()

@@ -43,8 +43,8 @@ class MidiLoopTest {
     }
 
     @Test
-    fun fillOneBarMidiLoopWithChances_quarterNotes() {
-        val loop = fillOneBarMidiLoopWithChances(floatArrayOf(1f, 1f, 1f, 1f), 36)
+    fun fillOneBarMidiLoopWithProbablities_quarterNotes() {
+        val loop = fillOneBarMidiLoopWithProbabilities(floatArrayOf(1f, 1f, 1f, 1f), 36)
 
         repeat(4) {
             assertThat(loop.tick()).matches {
@@ -64,8 +64,8 @@ class MidiLoopTest {
     }
 
     @Test
-    fun fillOneBarMidiLoopWithChances_quarterNotes2() {
-        val loop = fillOneBarMidiLoopWithChances(floatArrayOf(1f, 0f, 1f, 0f), 36)
+    fun fillOneBarMidiLoopWithProbablities_quarterNotes2() {
+        val loop = fillOneBarMidiLoopWithProbabilities(floatArrayOf(1f, 0f, 1f, 0f), 36)
 
         repeat(4) {
             assertThat(loop.tick()).matches {
@@ -89,8 +89,8 @@ class MidiLoopTest {
     }
 
     @Test
-    fun fillOneBarMidiLoopWithChances_8thNotes() {
-        val loop = fillOneBarMidiLoopWithChances(floatArrayOf(1f, 0f, 1f, 0f, 1f, 0f, 1f, 0f), 36)
+    fun fillOneBarMidiLoopWithProbablities_8thNotes() {
+        val loop = fillOneBarMidiLoopWithProbabilities(floatArrayOf(1f, 0f, 1f, 0f, 1f, 0f, 1f, 0f), 36)
 
         repeat(4) {
             assertThat(loop.tick()).matches {
@@ -114,8 +114,8 @@ class MidiLoopTest {
     }
 
     @Test
-    fun fillOneBarMidiLoopWithChances_7thNotes() {
-        val loop = fillOneBarMidiLoopWithChances(floatArrayOf(1f, 1f, 1f, 1f, 1f, 1f, 1f), 36)
+    fun fillOneBarMidiLoopWithProbablities_7thNotes() {
+        val loop = fillOneBarMidiLoopWithProbabilities(floatArrayOf(1f, 1f, 1f, 1f, 1f, 1f, 1f), 36)
 
         // this note takes 13 steps
         assertThat(loop.tick()).matches {
@@ -241,6 +241,6 @@ class MidiLoopTest {
         assertThat(loop.nextTick).isEqualTo(1)
         assertThat(loop.previousTick).isEqualTo(95)
 
-        assertThat(loop.currentNote!!.percentage).isEqualTo(1f)
+        assertThat(loop.currentNote!!.probability).isEqualTo(1f)
     }
 }

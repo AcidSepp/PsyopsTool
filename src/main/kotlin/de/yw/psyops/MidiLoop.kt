@@ -51,14 +51,14 @@ fun fillOneBarMidiLoop(
     check(noteCount > 0)
     val probabilitys = FloatArray(noteCount)
     probabilitys.fill(probability)
-    return fillOneBarMidiLoopWithProbabilitys(probabilitys, note, length, channel, velocity)
+    return fillOneBarMidiLoopWithProbabilities(probabilitys, note, length, channel, velocity)
 }
 
 /**
  * Fills one bar with notes with the given probabilitys.
  * The size of the array determines the subdivision of the notes.
  */
-fun fillOneBarMidiLoopWithProbabilitys(
+fun fillOneBarMidiLoopWithProbabilities(
     probabilitys: FloatArray, note: Int, length: Float = 1f, channel: Int = 0, velocity: Int = 127
 ): MidiLoop {
     return fillSteps(probabilitys, probabilitys.size, note, length, channel, velocity)

@@ -1,1 +1,1 @@
-./gradlew installDist && build/install/PsyopsTool/bin/PsyopsTool -o Impact -i Impact -c EXTERNAL --blank=4 --noteNameMask=DRUMBRUTE_IMPACT
+./gradlew installDist && build/install/PsyopsTool/bin/PsyopsTool -o Impact -i Impact -c EXTERNAL --script=/home/yannick/IdeaProjects/PsyopsTool/src/main/resources/dnb.kts --noteNameMask=DRUMBRUTE_IMPACT
