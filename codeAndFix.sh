@@ -1,1 +1,1 @@
-./gradlew installDist && build/install/PsyopsTool/bin/PsyopsTool -o Gervill -p /home/yannick/IdeaProjects/PsyopsTool/src/main/resources/dnb.kts
+./gradlew installDist && build/install/PsyopsTool/bin/PsyopsTool -o Gervill --blank=4

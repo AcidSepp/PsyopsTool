@@ -29,15 +29,15 @@ class ScriptHostTest {
             assertThat(midiLoop.noteMap.values).satisfiesExactlyInAnyOrder(
                 { note ->
                     assertThat(note.chance).isEqualTo(1.0f)
-                    assertThat(note.midiNote).isEqualTo(KICK)
+                    assertThat(note.midiPitch).isEqualTo(KICK)
                 },
                 { note ->
                     assertThat(note.chance).isEqualTo(0.25f)
-                    assertThat(note.midiNote).isEqualTo(KICK)
+                    assertThat(note.midiPitch).isEqualTo(KICK)
                 },
                 { note ->
                     assertThat(note.chance).isEqualTo(0.25f)
-                    assertThat(note.midiNote).isEqualTo(KICK)
+                    assertThat(note.midiPitch).isEqualTo(KICK)
                 },
             )
         })

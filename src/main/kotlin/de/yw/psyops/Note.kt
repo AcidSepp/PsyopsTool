@@ -21,20 +21,20 @@ val NOTE_NAMES = arrayOf(
 @Suppress("MemberVisibilityCanBePrivate")
 class Note(
     var channel: Int,
-    var midiNote: Int,
+    var midiPitch: Int,
     var velocity: Int,
     var chance: Float,
     val startIndex: Int,
     val stopIndex: Int
 ) {
     fun isPlaying() = chance > Random.nextFloat()
-    val name get() = NOTE_NAMES[midiNote % NOTE_NAMES.size]
+    val name get() = NOTE_NAMES[midiPitch % NOTE_NAMES.size]
     val durationInTicks = stopIndex - startIndex
-    fun noteOnMessage() = ShortMessage(ShortMessage.NOTE_ON, channel, midiNote, velocity)
-    fun noteOffMessage() = ShortMessage(ShortMessage.NOTE_OFF, channel, midiNote, 0)
+    fun noteOnMessage() = ShortMessage(ShortMessage.NOTE_ON, channel, midiPitch, velocity)
+    fun noteOffMessage() = ShortMessage(ShortMessage.NOTE_OFF, channel, midiPitch, 0)
 
     override fun toString() = """
-        note=$midiNote
+        note=$midiPitch
         channel=$channel
         velocity=$velocity
         chance=$chance
@@ -49,11 +49,11 @@ class Note(
     }
 
     fun increasePitch() {
-        midiNote = (midiNote + 1).coerceIn(0, 127)
+        midiPitch = (midiPitch + 1).coerceIn(0, 127)
     }
 
     fun decreasePitch() {
-        midiNote = (midiNote - 1).coerceIn(0, 127)
+        midiPitch = (midiPitch - 1).coerceIn(0, 127)
     }
 
     fun increaseVelocity() {
