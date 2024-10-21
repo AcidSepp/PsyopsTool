@@ -40,10 +40,10 @@ class PsyopsTool : CliktCommand() {
         },
         option("--blank", "-b").int().help("Create n empty midi loops.").convert {
             1.rangeTo(it).map {
-                fillOneBarMidiLoop(8, KICK)
+                fillOneBarMidiLoop(8, KICK, percentage = 0f)
             }
         }
-    ).default(listOf(fillOneBarMidiLoop(8, KICK)))
+    ).default(listOf(fillOneBarMidiLoop(8, KICK, percentage = 0f)))
 
     private lateinit var printer: Printer
     private val terminal = TerminalBuilder.builder().system(true).build()

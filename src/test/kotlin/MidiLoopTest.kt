@@ -241,6 +241,6 @@ class MidiLoopTest {
         assertThat(loop.nextTick).isEqualTo(1)
         assertThat(loop.previousTick).isEqualTo(95)
 
-        assertThat(loop.currentNote!!.chance).isEqualTo(1f)
+        assertThat(loop.currentNote!!.percentage).isEqualTo(1f)
     }
 }
