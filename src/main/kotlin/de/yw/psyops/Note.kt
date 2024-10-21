@@ -10,11 +10,11 @@ class Note(
     var channel: Int,
     var midiPitch: Int,
     var velocity: Int,
-    var percentage: Float,
+    var probability: Float,
     val startIndex: Int,
     val stopIndex: Int,
 ) {
-    fun isPlaying() = percentage > Random.nextFloat()
+    fun isPlaying() = probability > Random.nextFloat()
     val durationInTicks = stopIndex - startIndex
     fun noteOnMessage() = ShortMessage(ShortMessage.NOTE_ON, channel, midiPitch, velocity)
     fun noteOffMessage() = ShortMessage(ShortMessage.NOTE_OFF, channel, midiPitch, 0)
@@ -23,7 +23,7 @@ class Note(
         note=$midiPitch
         channel=$channel
         velocity=$velocity
-        percentage=$percentage
+        probability=$probability
         """.trimIndent()
 
     fun increaseChannel() {
@@ -51,11 +51,11 @@ class Note(
     }
 
     fun increaseChance() {
-        percentage = (percentage + 0.1f).coerceIn(0f, 1f)
+        probability = (probability + 0.1f).coerceIn(0f, 1f)
     }
 
     fun decreaseChance() {
-        percentage = (percentage - 0.1f).coerceIn(0f, 1f)
+        probability = (probability - 0.1f).coerceIn(0f, 1f)
     }
 }
 

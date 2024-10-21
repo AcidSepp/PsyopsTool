@@ -46,9 +46,9 @@ class PsyopsTool : CliktCommand() {
         },
         option("--blank", "-b").int().help("Create n empty midi loops.").convert {
             1.rangeTo(it).map {
-                fillOneBarMidiLoop(8, KICK, percentage = 0f)
+                fillOneBarMidiLoop(8, KICK, probability = 0f)
             }
-        }).default(listOf(fillOneBarMidiLoop(8, KICK, percentage = 0f)))
+        }).default(listOf(fillOneBarMidiLoop(8, KICK, probability = 0f)))
     // @formatter:on
 
     private lateinit var printer: Printer

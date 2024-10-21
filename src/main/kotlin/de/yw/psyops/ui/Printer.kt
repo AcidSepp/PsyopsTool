@@ -69,7 +69,7 @@ class Printer(
                     continue
                 }
 
-                if (note.percentage == 0f) {
+                if (note.probability == 0f) {
                     result += "_"
                     continue
                 }
@@ -81,10 +81,10 @@ class Printer(
                         result += noteNameMask[note.midiPitch]
                     }
 
-                    PERCENTAGE -> {
-                        val percentageString = "%.0f".format(note.percentage * 100) + "%"
-                        skip = percentageString.length - 1
-                        result += percentageString
+                    PROBABILITY -> {
+                        val probabilityString = "%.0f".format(note.probability * 100) + "%"
+                        skip = probabilityString.length - 1
+                        result += probabilityString
                     }
 
                     VELOCITY -> {
@@ -137,8 +137,8 @@ class Printer(
         printSelectedNote()
     }
 
-    fun displayPercentages() {
-        displayMode = PERCENTAGE
+    fun displayProbabilitys() {
+        displayMode = PROBABILITY
         reset()
     }
 
@@ -213,7 +213,7 @@ class Printer(
     fun increaseSelectedNote() {
         when (displayMode) {
             NOTE_NAME -> selectedNote.increasePitch()
-            PERCENTAGE -> selectedNote.increaseChance()
+            PROBABILITY -> selectedNote.increaseChance()
             VELOCITY -> selectedNote.increaseVelocity()
             MIDI_PITCH -> selectedNote.increasePitch()
             CHANNEL -> selectedNote.increaseChannel()
@@ -224,7 +224,7 @@ class Printer(
     fun decreaseSelectedNote() {
         when (displayMode) {
             NOTE_NAME -> selectedNote.decreasePitch()
-            PERCENTAGE -> selectedNote.decreaseChance()
+            PROBABILITY -> selectedNote.decreaseChance()
             VELOCITY -> selectedNote.decreaseVelocity()
             MIDI_PITCH -> selectedNote.decreasePitch()
             CHANNEL -> selectedNote.decreaseChannel()
@@ -247,14 +247,14 @@ class Printer(
         var noteNameString = "${SET_UNDERLINE}n${RESET_UNDERLINE}ame=${noteNameMask[selectedNote.midiPitch]}"
         var midiPitchString = "${SET_UNDERLINE}m${RESET_UNDERLINE}idiPitch=${selectedNote.midiPitch}"
         var velocityString = "${SET_UNDERLINE}v${RESET_UNDERLINE}elocity=${selectedNote.velocity}"
-        var percentageString =
-            "${SET_UNDERLINE}p${RESET_UNDERLINE}ercentage=${"%.0f".format(selectedNote.percentage * 100) + "%"}"
+        var probabilityString =
+            "${SET_UNDERLINE}p${RESET_UNDERLINE}ercentage=${"%.0f".format(selectedNote.probability * 100) + "%"}"
         var channelString = "${SET_UNDERLINE}c${RESET_UNDERLINE}hannel=${selectedNote.channel}"
 
         when (displayMode) {
             NOTE_NAME -> noteNameString = ANSI_RED + noteNameString + ANSI_RESET
 
-            PERCENTAGE -> percentageString = ANSI_RED + percentageString + ANSI_RESET
+            PROBABILITY -> probabilityString = ANSI_RED + probabilityString + ANSI_RESET
 
             VELOCITY -> velocityString = ANSI_RED + velocityString + ANSI_RESET
 
@@ -263,7 +263,7 @@ class Printer(
         }
 
         terminal.printAtBottomLine(
-            "$noteNameString $midiPitchString $velocityString $percentageString $channelString"
+            "$noteNameString $midiPitchString $velocityString $probabilityString $channelString"
         )
     }
 
@@ -281,6 +281,6 @@ class Printer(
     }
 
     private enum class State {
-        NOTE_NAME, PERCENTAGE, VELOCITY, MIDI_PITCH, CHANNEL
+        NOTE_NAME, PROBABILITY, VELOCITY, MIDI_PITCH, CHANNEL
     }
 }
